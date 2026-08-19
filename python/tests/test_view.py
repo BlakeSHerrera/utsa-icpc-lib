@@ -3,6 +3,8 @@ import itertools
 import pytest
 
 from view import *
+import utils
+
 
 N = 3
 
@@ -14,9 +16,9 @@ def list_view() -> ListView:
 def deque_view() -> DequeView:
     return DequeView(collections.deque(range(N)))
 
-@pytest.fixture(params = [list_view, deque_view], ids = ['list', 'deque'])
-def list_or_deque_view(request: pytest.FixtureRequest) -> ListView |  DequeView:
-    return request.getfixturevalue(request.param.__name__)
+@utils.fixtures(list_view, deque_view)
+def list_or_deque_view() -> ListView | DequeView:
+    ...
 
 @pytest.fixture
 def set_view() -> SetView:

@@ -2,6 +2,8 @@ from bag import *
 
 import pytest
 
+import utils
+
 
 N = 5
 R = range(N)
@@ -11,9 +13,9 @@ R = range(N)
 def deque_queue() -> DequeQueue:
     return DequeQueue()
 
-@pytest.fixture(params = [deque_queue], ids = ['deque'])
-def queue(request: pytest.FixtureRequest) -> Queue:
-    return request.getfixturevalue(request.param.__name__)
+@utils.fixtures(deque_queue)
+def queue() -> Queue:
+    ...
 
 @pytest.fixture
 def deque_stack() -> DequeStack:
@@ -23,14 +25,13 @@ def deque_stack() -> DequeStack:
 def list_stack() -> ListStack:
     return ListStack()
 
-@pytest.fixture(params = [list_stack, deque_stack], ids = ['list', 'deque'])
-def stack(request: pytest.FixtureRequest) -> Stack:
-    return request.getfixturevalue(request.param.__name__)
+@utils.fixtures(list_stack, deque_stack)
+def stack() -> Stack:
+    ...
 
-@pytest.fixture(params = [deque_queue, list_stack, deque_stack], ids = ['queue', 'list_stack', 'deque_stack'])
-def bag(request: pytest.FixtureRequest) -> Bag:
-    return request.getfixturevalue(request.param.__name__)
-
+@utils.fixtures(*queue.fixtures, *stack.fixtures)
+def bag() -> Bag:
+    ...
 
 # ===== abstract base class tests =====
 
