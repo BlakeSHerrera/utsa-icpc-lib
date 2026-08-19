@@ -1,4 +1,5 @@
 import abc
+import collections
 import sys
 from typing import Any, Hashable, Iterable, Self
 
@@ -118,3 +119,19 @@ class DictView(BaseView):
 
     def values(self) -> Iterable[Any]:
         return self._data.values()
+
+
+class DequeView(BaseView):
+
+    def __init__(self, deque: collections.deque):
+        super().__init__(deque)
+        self._data: collections.deque
+
+    def copy(self) -> collections.deque:
+        return self._data.copy()
+
+    def count(self, x: Any):
+        return self._data.count(x)
+
+    def index(self, x: Any, start: int = 0, stop: int = sys.maxsize) -> int:
+        return self._data.index(x, start, stop)

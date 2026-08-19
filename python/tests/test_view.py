@@ -10,6 +10,13 @@ N = 3
 def list_view() -> ListView:
     return ListView(list(range(N)))
 
+@pytest.fixture
+def deque_view() -> DequeView:
+    return DequeView(collections.deque(range(N)))
+
+@pytest.fixture(params = [list_view, deque_view], ids = ['list', 'deque'])
+def list_or_deque_view(request: pytest.FixtureRequest) -> ListView |  DequeView:
+    return request.getfixturevalue(request.param.__name__)
 
 @pytest.fixture
 def set_view() -> SetView:
@@ -86,24 +93,24 @@ def test_getitem(list_view: BaseView):
     assert list_view[:2] == list_view._data[:2]
 
 
-# ===== list / tuple tests =====
+# ===== list / deque tests =====
 
-def test_copy_list(list_view: ListView):
-    assert list_view.copy() == list_view._data.copy()
+def test_copy_list_deque(list_or_deque_view: ListView):
+    assert list_or_deque_view.copy() == list_or_deque_view._data.copy()
 
-def test_count(list_view: ListView):
+def test_count(list_or_deque_view: ListView):
     for i in (-1, 1):
-        assert list_view.count(i) == list_view._data.count(i)
+        assert list_or_deque_view.count(i) == list_or_deque_view._data.count(i)
 
-def test_index(list_view: ListView):
-    for params in itertools.product(range(len(list_view)), repeat = 3):
+def test_index(list_or_deque_view: ListView):
+    for params in itertools.product(range(len(list_or_deque_view)), repeat = 3):
         try:
-            r = list_view._data.index(*params)
+            r = list_or_deque_view._data.index(*params)
         except ValueError:
             with pytest.raises(ValueError):
-                list_view.index(*params)
+                list_or_deque_view.index(*params)
         else:
-            assert list_view.index(*params) == r
+            assert list_or_deque_view.index(*params) == r
 
 
 # ===== set tests =====
