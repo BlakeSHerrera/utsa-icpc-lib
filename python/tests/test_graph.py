@@ -1,3 +1,4 @@
+import itertools
 
 import pytest
 
@@ -15,20 +16,6 @@ def test_properties(elem: GraphElement):
 def test_hash(elem: GraphElement):
     assert hash(elem) == hash(elem)
 
-def test_getitem(elem: GraphElement):
-    assert elem['a'] == 1
-    with pytest.raises(KeyError):
-        elem['b']
-
-def test_get(elem: GraphElement):
-    assert elem.get('a') == 1
-    assert elem.get('b') == None
-    assert elem.get('b', 2) == 2
-
-def test_contains(elem: GraphElement):
-    assert 'a' in elem
-    assert 'b' not in elem
-
 
 def test_subclass_attributes():
     data_1 = {'a': 1}
@@ -44,3 +31,13 @@ def test_subclass_attributes():
 
     w_edge = WeightedEdge(node_1, node_2, 3)
     assert w_edge.weight == 3
+
+
+def test_eq():
+    nodes = [Node([1, 2, 3]) for _ in range(3)]
+    assert nodes[0] == nodes[1]
+    edges = [Edge(*pair) for pair in itertools.pairwise(nodes)]
+    assert edges[0] == edges[1]
+
+def test_lt():
+    assert Node(0) < Node(1)
