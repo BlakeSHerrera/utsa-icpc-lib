@@ -8,7 +8,7 @@ import itertools
 import math
 from numbers import Number
 import operator
-from typing import Any, Iterable, Protocol, Self, TypeVar
+from typing import Any, Iterable, Mapping, Protocol, Self, TypeVar
 
 from complexity import O, query, constant, inf
 import utils
@@ -81,13 +81,13 @@ class GraphView:
     def __init__(self, graph: Graph):
         self._graph = graph
 
-    def neighbors(self, element: Node | Edge, direction: Direction) -> Iterable[Node | Edge]:
+    def neighbors(self, direction: Direction, element: Node | Edge) -> Iterable[Node | Edge]:
         if isinstance(element, Edge):
             return element.neighbors(direction)
         return self._graph.neighbors(element, direction)
 
     # Thin wrappers
-    def degree(self, node: Node, direction: Direction) -> int: return self._graph.degree(node, direction)
+    def degree(self, direction: Direction, node: Node) -> int: return self._graph.degree(node, direction)
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: return self._graph.edges_between(from_, to)
     def nodes(self) -> Iterable[Node]: return self._graph.nodes()
     def edges(self) -> Iterable[Edge]: return self._graph.edges()
@@ -101,14 +101,15 @@ class Graph(GraphView, abc.ABC):
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         utils.apply(self.add_node, nodes)
         utils.apply(self.add_edge, edges)
+        super().__init__(self)
 
     def add_node(self, node: Node): raise NotImplementedError
     def add_edge(self, edge: Edge): raise NotImplementedError
     def remove_node(self, node: Node): raise NotImplementedError
     def remove_edge(self, edge: Edge): raise NotImplementedError
 
-    def neighbors(self, node: Node, direction: Direction) -> Iterable[Edge]: raise NotImplementedError
-    def degree(self, node: Node, direction: Direction) -> int: raise NotImplementedError
+    def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
+    def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplementedError
     def nodes(self) -> Iterable[Node]: raise NotImplementedError
     def edges(self) -> Iterable[Edge]: raise NotImplementedError
@@ -122,3 +123,55 @@ class LaxGraph(Graph, abc.ABC):
     def add_edge(self, edge: Edge): pass
     def remove_node(self, node: Node): pass
     def remove_edge(self, edge: Edge): pass
+
+
+class AdjacencySet(Graph):
+
+    def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        self._adjacency = Mapping[Direction, dict[Node, set[Edge]]] = [dict() for _ in Direction]
+        super().__init__(nodes, edges)
+    
+    def add_node(self, node: Node):
+        for dir in Direction:
+            self._adjacency[dir][node] = set()
+    
+    def add_edge(self, edge: Edge):
+        for dir in Direction:
+            for node in edge.neighbors(dir):
+                self._adjacency[dir][node].add(edge)
+
+    def remove_node(self, node: Node):
+        del self._adjacency[node]
+
+    def remove_edge(self, edge: Edge):
+        for dir in Direction:
+            for node in edge.neighbors(dir):
+                self._adjacency[dir][node].remove(edge)
+
+    def neighbors(self, direction: Direction, node: Node) -> set[Edge]:
+        return self._adjacency[direction][node]
+
+    def degree(self, node: Node, direction: Direction) -> int:
+        return len(self.neighbors(direction, node))
+    
+    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
+        return (i for i in self._adjacency[Direction.OUT][from_] if i.to is to)
+    
+    def nodes(self) -> collections.abc.KeysView[Node]:
+        return self._adjacency[Direction.OUT].keys()
+
+    def edge_sets(self) -> collections.abc.ValuesView[set[Edge]]:
+        return self._adjacency[Direction.OUT].values()
+    
+    def edges(self) -> Iterable[Edge]:
+        return itertools.chain.from_iterable(self.edge_sets())
+
+    def v(self) -> int:
+        return len(self._adjacency)
+
+    def e(self) -> int:
+        return sum(map(len, self.edge_sets()))
+
+    def __bool__(self) -> bool:
+        return bool(self._adjacency)
+    
