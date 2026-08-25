@@ -41,3 +41,10 @@ def test_eq():
 
 def test_lt():
     assert Node(0) < Node(1)
+
+
+def test_direction():
+    assert Direction.OUT.reverse() is Direction.IN
+    assert Direction.IN.reverse() is Direction.OUT
+    assert Direction.BOTH.reverse() is Direction.BOTH
+    
