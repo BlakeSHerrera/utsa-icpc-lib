@@ -78,41 +78,41 @@ class WeightedEdge(Edge):
 
 class GraphView:
 
-    def __init__(self, index: Index):
-        self._index = index
+    def __init__(self, graph: Graph):
+        self._graph = graph
 
     def neighbors(self, element: Node | Edge, direction: Direction) -> Iterable[Node | Edge]:
         if isinstance(element, Edge):
             return element.neighbors(direction)
-        return self._index.neighbors(element, direction)
+        return self._graph.neighbors(element, direction)
 
     def degree(self, node: Node, direction: Direction) -> int:
-        return self._index.degree(node, direction)
+        return self._graph.degree(node, direction)
 
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
-        return self._index.edges_between(from_, to)
+        return self._graph.edges_between(from_, to)
 
     @property
     def nodes(self) -> Iterable[Node]: 
-        return self._index.nodes
+        return self._graph.nodes
 
     @property
     def edges(self) -> Iterable[Edge]:
-        return self._index.edges
+        return self._graph.edges
 
     @property
     def v(self) -> int:
-        return self._index.v
+        return self._graph.v
 
     @property
     def e(self) -> int:
-        return self._index.e
+        return self._graph.e
     
     def __bool__(self) -> bool:
-        return bool(self._index)
+        return bool(self._graph)
 
     
-class Index(GraphView, abc.ABC):
+class Graph(GraphView, abc.ABC):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         utils.apply(self.add_node, nodes)
@@ -152,9 +152,8 @@ class Index(GraphView, abc.ABC):
         raise NotImplementedError
 
 
-class LaxIndex(Index, abc.ABC):
+class LaxGraph(Graph, abc.ABC):
     def add_node(self, node: Node): pass
     def add_edge(self, edge: Edge): pass
     def remove_node(self, node: Node): pass
     def remove_edge(self, edge: Edge): pass
-    
