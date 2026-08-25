@@ -175,3 +175,54 @@ class AdjacencySet(Graph):
 
     def __bool__(self) -> bool:
         return bool(self._adjacency)
+
+
+class ElementSet(Graph):
+
+    def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        self._nodes: set[Node] = set()
+        self._edges: set[Edge] = set()
+        self._elements: set[Node | Edge] = set()
+        super().__init__(nodes, edges)
+
+    def add_node(self, node: Node):
+        self._nodes.add(node)
+        self._elements.add(node)
+
+    def add_edge(self, edge: Edge):
+        self._edges.add(edge)
+        self._elements.add(edge)
+
+    def remove_node(self, node: Node):
+        self._nodes.remove(node)
+        self._elements.remove(node)
+        for edge in tuple(self._edges):
+            if node in edge:
+                self.remove_edge(edge)
+
+    def remove_edge(self, edge: Edge):
+        self._edges.remove(edge)
+        self._elements.remove(edge)
+
+    # def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplemented
+    # def degree(self, direction: Direction, node: Node) -> int: raise NotImplemented
+    # def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplemented
+    
+    def nodes(self) -> set[Node]:
+        return self._nodes
+    
+    def edges(self) -> set[Edge]:
+        return self._edges
+
+    def elements(self) -> set[Node | Edge]:
+        return self._elements
+
+    def v(self) -> int:
+        return len(self._nodes)
+
+    def e(self) -> int:
+        return len(self._edges)
+
+    def __bool__(self) -> bool:
+        return bool(self._elements)
+    
