@@ -87,7 +87,7 @@ class GraphView:
         return self._graph.neighbors(element, direction)
 
     # Thin wrappers
-    def degree(self, direction: Direction, node: Node) -> int: return self._graph.degree(node, direction)
+    def degree(self, direction: Direction, node: Node) -> int: return self._graph.degree(direction, node)
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: return self._graph.edges_between(from_, to)
     def nodes(self) -> Iterable[Node]: return self._graph.nodes()
     def edges(self) -> Iterable[Edge]: return self._graph.edges()
@@ -99,9 +99,10 @@ class GraphView:
 class Graph(GraphView, abc.ABC):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        super().__init__(self)
         utils.apply(self.add_node, nodes)
         utils.apply(self.add_edge, edges)
-        super().__init__(self)
+        
 
     def add_node(self, node: Node): raise NotImplementedError
     def add_edge(self, edge: Edge): raise NotImplementedError
@@ -152,7 +153,7 @@ class AdjacencySet(Graph):
     def neighbors(self, direction: Direction, node: Node) -> set[Edge]:
         return self._adjacency[direction][node]
 
-    def degree(self, node: Node, direction: Direction) -> int:
+    def degree(self, direction: Direction, node: Node) -> int:
         return len(self.neighbors(direction, node))
     
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
@@ -204,9 +205,9 @@ class ElementSet(Graph):
         self._edges.remove(edge)
         self._elements.remove(edge)
 
-    # def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplemented
-    # def degree(self, direction: Direction, node: Node) -> int: raise NotImplemented
-    # def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplemented
+    # def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
+    # def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
+    # def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplementedError
     
     def nodes(self) -> set[Node]:
         return self._nodes
@@ -225,4 +226,51 @@ class ElementSet(Graph):
 
     def __bool__(self) -> bool:
         return bool(self._elements)
+
+
+class EdgeSearch(LaxGraph):
+
+    def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        self._edges: Mapping[Direction, dict[Node, dict[Node, set[Edge]]]] \
+            = [collections.defaultdict(lambda: collections.defaultdict(set)) for _ in Direction]
+        super().__init__(nodes, edges)
+
+    # def add_node(self, node: Node): pass
+
+    def add_edge(self, edge: Edge):
+        for dir, node_1, node_2 in [
+            (Direction.OUT, edge.from_, edge.to),
+            (Direction.IN, edge.to, edge.from_),
+            (Direction.BOTH, edge.from_, edge.to),
+            (Direction.BOTH, edge.to, edge.from_),
+        ]:
+            self._edges[dir][node_1][node_2].add(edge)
+
+    def remove_node(self, node: Node):
+        for dir in Direction:
+            for nodes in self._edges[dir].pop(node):
+                utils.apply(self.remove_edge, nodes)
+                nodes.pop(node, None)
+
+    def remove_edge(self, edge: Edge):
+        self._edges[Direction.OUT][edge.from_][edge.to_].remove(edge)
+        self._edges[Direction.IN][edge.to][edge.from_].remove(edge)
+        self._edges[Direction.BOTH][edge.from_][edge.to].remove(edge)
+        self._edges[Direction.BOTH][edge.to][edge.from_].remove(edge)
+
+    def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]:
+        return itertools.chain.from_iterable(self._edges[direction][node].values())
+
+    # def degree(self, direction: Direction, node: Node) -> int: raise NotADirectoryError
+
+    def edges_between(self, from_: Node, to: Node) -> set[Edge]:
+        return self.edges[Direction.OUT][from_][to]
+
+    # def nodes(self) -> set[Node]: raise NotImplementedError
     
+    def edges(self) -> Iterable[Edge]:
+        return itertools.chain.from_iterable(map(dict.values, self._edges.values()))
+
+    # def v(self) -> int: raise NotImplementedError
+    # def e(self) -> int: raise NotImplementedError
+    # def __bool__(self) -> bool: raise NotImplementedError
