@@ -86,30 +86,14 @@ class GraphView:
             return element.neighbors(direction)
         return self._graph.neighbors(element, direction)
 
-    def degree(self, node: Node, direction: Direction) -> int:
-        return self._graph.degree(node, direction)
-
-    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
-        return self._graph.edges_between(from_, to)
-
-    @property
-    def nodes(self) -> Iterable[Node]: 
-        return self._graph.nodes
-
-    @property
-    def edges(self) -> Iterable[Edge]:
-        return self._graph.edges
-
-    @property
-    def v(self) -> int:
-        return self._graph.v
-
-    @property
-    def e(self) -> int:
-        return self._graph.e
-    
-    def __bool__(self) -> bool:
-        return bool(self._graph)
+    # Thin wrappers
+    def degree(self, node: Node, direction: Direction) -> int: return self._graph.degree(node, direction)
+    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: return self._graph.edges_between(from_, to)
+    def nodes(self) -> Iterable[Node]: return self._graph.nodes()
+    def edges(self) -> Iterable[Edge]: return self._graph.edges()
+    def v(self) -> int: return self._graph.v()
+    def e(self) -> int: return self._graph.e()
+    def __bool__(self) -> bool: return bool(self._graph)
 
     
 class Graph(GraphView, abc.ABC):
@@ -123,33 +107,14 @@ class Graph(GraphView, abc.ABC):
     def remove_node(self, node: Node): raise NotImplementedError
     def remove_edge(self, edge: Edge): raise NotImplementedError
 
-    def neighbors(self, node: Node, direction: Direction) -> Iterable[Edge]: 
-        raise NotImplementedError
-
-    def degree(self, node: Node, direction: Direction) -> int:
-        raise NotImplementedError
-
-    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
-        raise NotImplementedError
-
-    @property
-    def nodes(self) -> Iterable[Node]: 
-        raise NotImplementedError
-
-    @property
-    def edges(self) -> Iterable[Edge]: 
-        raise NotImplementedError
-
-    @property
-    def v(self) -> int: 
-        raise NotImplementedError
-
-    @property
-    def e(self) -> int: 
-        raise NotImplementedError
-
-    def __bool__(self) -> bool: 
-        raise NotImplementedError
+    def neighbors(self, node: Node, direction: Direction) -> Iterable[Edge]: raise NotImplementedError
+    def degree(self, node: Node, direction: Direction) -> int: raise NotImplementedError
+    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplementedError
+    def nodes(self) -> Iterable[Node]: raise NotImplementedError
+    def edges(self) -> Iterable[Edge]: raise NotImplementedError
+    def v(self) -> int: raise NotImplementedError
+    def e(self) -> int: raise NotImplementedError
+    def __bool__(self) -> bool: raise NotImplementedError
 
 
 class LaxGraph(Graph, abc.ABC):
