@@ -75,6 +75,7 @@ class WeightedEdge(Edge):
         super().__init__(from_, to, **kwargs)
         self.weight = weight
 
+
 class GraphView:
 
     def __init__(self, index: Index):
@@ -110,54 +111,50 @@ class GraphView:
     def __bool__(self) -> bool:
         return bool(self._index)
 
-
-class Index(abc.ABC):
-
-    def add_node(self, node: Node):
-        raise NotImplementedError
-
-    def add_edge(self, edge: Edge):
-        raise NotImplementedError
-
-    def remove_node(self, node: Node):
-        raise NotImplementedError
-
-    def remove_edge(self, edge: Edge):
-        raise NotImplementedError
-
-
-class CompositeIndex(Index):
-
-    def __init__(self, indices: Iterable[Index]):
-        self.indices = tuple(indices)
-
-    def add_node(self, node: Node):
-        for i in self.indices:
-            i.add_node(node)
-
-    def add_edge(self, edge: Edge):
-        for i in self.indices:
-            i.add_edge(edge)
-
-    def remove_node(self, node: Node):
-        for i in self.indices:
-            i.remove_node(node)
-
-    def remove_edge(self, edge: Edge):
-        for i in self.indices:
-            i.remove_edge(edge)
-
     
+class Index(GraphView, abc.ABC):
+
+    def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        utils.apply(self.add_node, nodes)
+        utils.apply(self.add_edge, edges)
+
+    def add_node(self, node: Node): raise NotImplementedError
+    def add_edge(self, edge: Edge): raise NotImplementedError
+    def remove_node(self, node: Node): raise NotImplementedError
+    def remove_edge(self, edge: Edge): raise NotImplementedError
+
+    def neighbors(self, node: Node, direction: Direction) -> Iterable[Edge]: 
+        raise NotImplementedError
+
+    def degree(self, node: Node, direction: Direction) -> int:
+        raise NotImplementedError
+
+    def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]:
+        raise NotImplementedError
+
+    @property
+    def nodes(self) -> Iterable[Node]: 
+        raise NotImplementedError
+
+    @property
+    def edges(self) -> Iterable[Edge]: 
+        raise NotImplementedError
+
+    @property
+    def v(self) -> int: 
+        raise NotImplementedError
+
+    @property
+    def e(self) -> int: 
+        raise NotImplementedError
+
+    def __bool__(self) -> bool: 
+        raise NotImplementedError
+
+
 class LaxIndex(Index, abc.ABC):
-
-    def add_node(self, node: Node):
-        pass
-
-    def add_edge(self, edge: Edge):
-        pass
-
-    def remove_node(self, node: Node):
-        pass
-
-    def remove_edge(self, edge: Edge):
-        pass
+    def add_node(self, node: Node): pass
+    def add_edge(self, edge: Edge): pass
+    def remove_node(self, node: Node): pass
+    def remove_edge(self, edge: Edge): pass
+    
