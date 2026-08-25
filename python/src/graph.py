@@ -141,7 +141,8 @@ class AdjacencySet(Graph):
                 self._adjacency[dir][node].add(edge)
 
     def remove_node(self, node: Node):
-        del self._adjacency[node]
+        for dir in Direction:
+            del self._adjacency[dir][node]
 
     def remove_edge(self, edge: Edge):
         for dir in Direction:
@@ -174,4 +175,3 @@ class AdjacencySet(Graph):
 
     def __bool__(self) -> bool:
         return bool(self._adjacency)
-    
