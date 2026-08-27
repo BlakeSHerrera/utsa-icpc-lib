@@ -11,7 +11,7 @@ def count(iterable: Iterable) -> int:
 
 def is_empty(iterable: Iterable) -> bool:
     if isinstance(iterable, collections.abc.Sized):
-        return len(iterable) != 0
+        return len(iterable) == 0
     try:
         next(iter(iterable))
         return False
@@ -33,4 +33,3 @@ class ZeroBasedEnum(enum.IntEnum):
     @staticmethod
     def _generate_next_value_(name, start, count, last_values):
         return count
-    
