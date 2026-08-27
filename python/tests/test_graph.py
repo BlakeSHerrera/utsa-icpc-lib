@@ -1,8 +1,10 @@
+import dataclasses
 import itertools
 
 import pytest
 
 from graph import *
+import testutils
 
 
 def test_attributes():
@@ -55,3 +57,170 @@ def test_direction_orient():
         (Direction.BOTH, {edge.nodes, edge.nodes_r})
     ]:
         assert set(dir.orient(edge)) == result
+
+
+@dataclasses.dataclass
+class GraphDefinition:
+    nodes: list[Node]
+    edges: list[Edge]
+
+    def add_to(self, graph: Graph):
+        for node in self.nodes:
+            graph.add_node(node)
+        for edge in self.edges:
+            graph.add_edge(edge)
+
+    def remove_from(self, graph: Graph):
+        for edge in self.edges:
+            graph.remove_edge(edge)
+        for node in self.nodes:
+            graph.remove_node(node)
+
+    def add_and_remove(self, graph: Graph):
+        self.add_to(graph)
+        self.remove_from(graph)
+
+
+N = 1
+
+@pytest.fixture
+def elements() -> GraphDefinition:
+    nodes = list(map(Node, range(N)))
+    edges = list(itertools.starmap(Edge, itertools.pairwise(nodes)))
+    return GraphDefinition(nodes, edges)
+
+@pytest.fixture
+def extra_elements() -> GraphDefinition:
+    nodes = list(map(Node, range(N, 2 * N)))
+    edges = list(itertools.starmap(Edge, itertools.pairwise(nodes)))
+    return GraphDefinition(nodes, edges)
+
+def test_lax_graph(elements: GraphDefinition):
+    class G(LaxGraph): pass
+    g = G()
+    elements.add_to(g)
+    elements.remove_from(g)
+
+
+@pytest.fixture
+def adjacency_set_constructor(elements: GraphDefinition) -> AdjacencySet:
+    return AdjacencySet(elements.nodes, elements.edges)
+
+@pytest.fixture
+def element_set_constructor(elements: GraphDefinition) -> ElementSet:
+    return ElementSet(elements.nodes, elements.edges)
+
+@pytest.fixture
+def edge_search_constructor(elements: GraphDefinition) -> EdgeSearch:
+    return EdgeSearch(elements.nodes, elements.edges)
+
+@pytest.fixture
+def adjacency_set_mutated(adjacency_set_constructor: AdjacencySet, extra_elements: GraphDefinition) -> AdjacencySet:
+    extra_elements.add_and_remove(adjacency_set_constructor)
+    return adjacency_set_constructor
+
+@pytest.fixture
+def element_set_mutated(element_set_constructor: ElementSet, extra_elements: GraphDefinition) -> ElementSet:
+    extra_elements.add_and_remove(element_set_constructor)
+    return element_set_constructor
+
+@pytest.fixture
+def edge_search_mutated(edge_search_constructor: EdgeSearch, extra_elements: GraphDefinition) -> EdgeSearch:
+    extra_elements.add_and_remove(edge_search_constructor)
+    return edge_search_constructor
+
+@pytest.fixture
+def adjacency_set_empty() -> AdjacencySet:
+    return AdjacencySet()
+
+@pytest.fixture
+def element_set_empty() -> ElementSet:
+    return ElementSet()
+
+@pytest.fixture
+def edge_search_empty() -> EdgeSearch:
+    return ElementSet()
+
+@testutils.fixtures(adjacency_set_constructor, adjacency_set_mutated)
+def adjacency_set() -> AdjacencySet:
+    ...
+
+@testutils.fixtures(element_set_constructor, element_set_mutated)
+def element_set() -> ElementSet:
+    ...
+
+@testutils.fixtures(edge_search_constructor, edge_search_mutated)
+def edge_search() -> EdgeSearch:
+    ...
+
+@testutils.fixtures(adjacency_set_empty, element_set_empty, edge_search_empty)
+def empty_graph() -> Graph:
+    ...
+    
+@testutils.fixtures(*adjacency_set.fixtures, *element_set.fixtures, *edge_search.fixtures)
+def graph() -> Graph:
+    ...
+
+def test_graph_nodes(graph: Graph, elements: GraphDefinition):
+    try: assert set(graph.nodes()) == set(elements.nodes)
+    except NotImplementedError: pass
+
+def test_graph_edges(graph: Graph, elements: GraphDefinition):
+    try: assert set(graph.edges()) == set(elements.edges)
+    except NotImplementedError: pass
+
+def test_graph_v(graph: Graph, elements: GraphDefinition):
+    try: assert graph.v() == len(elements.nodes)
+    except NotImplementedError: pass
+
+def test_graph_e(graph: Graph, elements: GraphDefinition):
+    try: assert graph.e() == len(elements.edges)
+    except NotImplementedError: pass
+
+def test_graph_bool(graph: Graph, elements: GraphDefinition):
+    assert bool(graph) == bool(elements.nodes + elements.edges)
+    elements.remove_from(graph)
+    assert not bool(graph)
+
+def test_graph_degree(graph: Graph, elements: GraphDefinition):
+    for node in elements.nodes:
+        graph.add_edge(Edge(node, node))  # Self-edges are an edge case due to potential confusion
+        graph.add_edge(Edge(node, node))  # Also test for multi-edges
+        count_in = 2 + sum(edge.to is node for edge in elements.edges)
+        count_out = 2 + sum(edge.from_ is node for edge in elements.edges)
+        for dir, expected in [
+            (Direction.IN, count_in),
+            (Direction.OUT, count_out),
+            (Direction.BOTH, count_in + count_out)
+        ]:
+            try: assert graph.degree(dir, node) == expected, f'Dir {dir} Elements are {elements.edges}'
+            except NotImplementedError: pass
+
+def test_edges_between(graph: Graph, elements: GraphDefinition):
+    index: dict[tuple[Node, Node], set[Edge]] = collections.defaultdict(set)
+    for edge in elements.edges:
+        index[edge.nodes].add(edge)
+    try:
+        for node_pair in itertools.pairwise(itertools.permutations(elements.nodes, r = 2)):
+            assert set(graph.edges_between(*node_pair)) == index[node_pair]
+    except NotImplementedError:
+        pass
+
+def test_neighbors(graph: Graph, elements: GraphDefinition):
+    neighbors: dict[Direction, dict[Node | Edge, list[Node | Edge]]] \
+        = collections.defaultdict(lambda: collections.defaultdict(list))
+    for edge, dir in itertools.product(elements.edges, Direction):
+        for neighbor, neighbor_r in zip(edge.neighbors(dir), edge.neighbors(~dir)):
+            neighbors[dir][edge].append(neighbor)
+            neighbors[dir][neighbor_r].append(edge)
+    for element, dir in itertools.product(elements.nodes + elements.edges, Direction):
+        expected = collections.Counter(neighbors[dir][element])
+        if isinstance(element, Node):
+            try: assert collections.Counter(graph._neighbors(dir, element)) == expected
+            except NotImplementedError: pass
+        try: assert collections.Counter(graph.neighbors(dir, element)) == expected
+        except NotImplementedError: pass
+
+
+def test_generic(graph: Graph):
+    assert isinstance(graph, Graph)
