@@ -2,7 +2,7 @@ from bag import *
 
 import pytest
 
-import utils
+import testutils
 
 
 N = 5
@@ -13,7 +13,7 @@ R = range(N)
 def deque_queue() -> DequeQueue:
     return DequeQueue()
 
-@utils.fixtures(deque_queue)
+@testutils.fixtures(deque_queue)
 def queue() -> Queue:
     ...
 
@@ -25,11 +25,11 @@ def deque_stack() -> DequeStack:
 def list_stack() -> ListStack:
     return ListStack()
 
-@utils.fixtures(list_stack, deque_stack)
+@testutils.fixtures(list_stack, deque_stack)
 def stack() -> Stack:
     ...
 
-@utils.fixtures(*queue.fixtures, *stack.fixtures)
+@testutils.fixtures(*queue.fixtures, *stack.fixtures)
 def bag() -> Bag:
     ...
 
