@@ -5,14 +5,11 @@ import collections, collections.abc
 import enum
 import itertools
 from numbers import Number
-from typing import Any, Iterable, Mapping, Self, TypeVar
+from typing import Any, Iterable, Mapping, Self
 
 import utils
 
 
-T = TypeVar('T')
-
-    
 class Node:
 
     def __init__(self, data: Any):
