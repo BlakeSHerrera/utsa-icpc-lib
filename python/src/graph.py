@@ -21,9 +21,8 @@ T = TypeVar('T')
     
 class Node:
 
-    def __init__(self, data: Any, **kwargs):
+    def __init__(self, data: Any):
         self.data = data
-        self.properties = kwargs
 
 
 class Direction(utils.ZeroBasedEnum):
@@ -41,13 +40,21 @@ class Direction(utils.ZeroBasedEnum):
             case BOTH:
                 return BOTH
 
+    def orient(self, edge: Edge) -> Iterable[tuple[Node, Node]]:
+        match self:
+            case Direction.OUT:
+                return (edge.nodes,)
+            case Direction.IN:
+                return (edge.nodes_r,)
+            case Direction.BOTH:
+                return (edge.nodes, edge.nodes_r)
+
 
 class Edge:
 
-    def __init__(self, from_: Node, to: Node, **kwargs):
+    def __init__(self, from_: Node, to: Node):
         self.from_ = from_
         self.to = to
-        self.properties = kwargs
 
     def reverse(self) -> Self:
         return  Edge(self.to, self.from_, **self.properties)
@@ -55,6 +62,10 @@ class Edge:
     @property
     def nodes(self) -> tuple[Node, Node]:
         return (self.from_, self.to)
+
+    @property
+    def nodes_r(self) -> tuple[Node, Node]:
+        return (self.to, self.from_)
 
     def __contains__(self, other: Node) -> bool:
         return other in self.nodes
@@ -71,8 +82,8 @@ class Edge:
 
 class WeightedEdge(Edge):
 
-    def __init__(self, from_: Node, to: Node, weight: Number, **kwargs):
-        super().__init__(from_, to, **kwargs)
+    def __init__(self, from_: Node, to: Node, weight: Number):
+        super().__init__(from_, to)
         self.weight = weight
 
 
@@ -238,13 +249,9 @@ class EdgeSearch(LaxGraph):
     # def add_node(self, node: Node): pass
 
     def add_edge(self, edge: Edge):
-        for dir, node_1, node_2 in [
-            (Direction.OUT, edge.from_, edge.to),
-            (Direction.IN, edge.to, edge.from_),
-            (Direction.BOTH, edge.from_, edge.to),
-            (Direction.BOTH, edge.to, edge.from_),
-        ]:
-            self._edges[dir][node_1][node_2].add(edge)
+        for dir in Direction:
+            for node_1, node_2 in dir.orient(edge):
+                self._edges[dir][node_1][node_2].add(edge)
 
     def remove_node(self, node: Node):
         for dir in Direction:
@@ -253,15 +260,14 @@ class EdgeSearch(LaxGraph):
                 nodes.pop(node, None)
 
     def remove_edge(self, edge: Edge):
-        self._edges[Direction.OUT][edge.from_][edge.to_].remove(edge)
-        self._edges[Direction.IN][edge.to][edge.from_].remove(edge)
-        self._edges[Direction.BOTH][edge.from_][edge.to].remove(edge)
-        self._edges[Direction.BOTH][edge.to][edge.from_].remove(edge)
+        for dir in Direction:
+            for node_1, node_2 in dir.orient(edge):
+                self._edges[dir][node_1][node_2].remove(edge)
 
     def neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]:
         return itertools.chain.from_iterable(self._edges[direction][node].values())
 
-    # def degree(self, direction: Direction, node: Node) -> int: raise NotADirectoryError
+    # def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
 
     def edges_between(self, from_: Node, to: Node) -> set[Edge]:
         return self.edges[Direction.OUT][from_][to]

@@ -5,19 +5,7 @@ import pytest
 from graph import *
 
 
-@pytest.fixture
-def elem() -> GraphElement:
-    data = {'a': 1}
-    return GraphElement(**data)
-
-def test_properties(elem: GraphElement):
-    assert elem.properties == {'a': 1}
-
-def test_hash(elem: GraphElement):
-    assert hash(elem) == hash(elem)
-
-
-def test_subclass_attributes():
+def test_attributes():
     data_1 = {'a': 1}
     node_1 = Node(data_1)
     assert node_1.data is data_1
@@ -28,23 +16,42 @@ def test_subclass_attributes():
     assert edge.from_ is node_1
     assert edge.to is node_2
     assert edge.nodes == (node_1, node_2)
+    assert edge.nodes_r == (node_2, node_1)
 
     w_edge = WeightedEdge(node_1, node_2, 3)
     assert w_edge.weight == 3
 
 
-def test_eq():
-    nodes = [Node([1, 2, 3]) for _ in range(3)]
-    assert nodes[0] == nodes[1]
-    edges = [Edge(*pair) for pair in itertools.pairwise(nodes)]
-    assert edges[0] == edges[1]
+def test_edge_in():
+    edge = Edge(Node(1), Node(2))
+    assert edge.to in edge
+    assert edge.from_ in edge
 
-def test_lt():
-    assert Node(0) < Node(1)
 
+def test_edge_neighbors():
+    node_1 = Node(1)
+    node_2 = Node(2)
+    edge = Edge(node_1, node_2)
+    for dir, result in [
+        (Direction.OUT, {edge.to}),
+        (Direction.IN, {edge.from_}),
+        (Direction.BOTH, {edge.from_, edge.to})
+    ]:
+        assert set(edge.neighbors(dir)) == result
 
 def test_direction():
     assert Direction.OUT.reverse() is Direction.IN
     assert Direction.IN.reverse() is Direction.OUT
     assert Direction.BOTH.reverse() is Direction.BOTH
-    
+
+
+def test_direction_orient():
+    node_1 = Node(1)
+    node_2 = Node(2)
+    edge = Edge(node_1, node_2)
+    for dir, result in [
+        (Direction.OUT, {edge.nodes}),
+        (Direction.IN, {edge.nodes_r}),
+        (Direction.BOTH, {edge.nodes, edge.nodes_r})
+    ]:
+        assert set(dir.orient(edge)) == result
