@@ -3,51 +3,20 @@ from __future__ import annotations
 import abc
 import collections, collections.abc
 import enum
-import functools
 import itertools
-import math
 from numbers import Number
-import operator
-from typing import Any, Iterable, Mapping, Protocol, Self, TypeVar
+from typing import Any, Iterable, Mapping, Self, TypeVar
 
-from complexity import O, query, constant, inf
 import utils
 
 
 T = TypeVar('T')
-
-
 
     
 class Node:
 
     def __init__(self, data: Any):
         self.data = data
-
-
-class Direction(utils.ZeroBasedEnum):
-    
-    OUT = enum.auto()
-    IN = enum.auto()
-    BOTH = enum.auto()
-
-    def reverse(self) -> Self:
-        match self:
-            case Direction.OUT:
-                return Direction.IN
-            case Direction.IN:
-                return Direction.OUT
-            case BOTH:
-                return BOTH
-
-    def orient(self, edge: Edge) -> Iterable[tuple[Node, Node]]:
-        match self:
-            case Direction.OUT:
-                return (edge.nodes,)
-            case Direction.IN:
-                return (edge.nodes_r,)
-            case Direction.BOTH:
-                return (edge.nodes, edge.nodes_r)
 
 
 class Edge:
@@ -86,6 +55,31 @@ class WeightedEdge(Edge):
         super().__init__(from_, to)
         self.weight = weight
 
+
+class Direction(utils.ZeroBasedEnum):
+    
+    OUT = enum.auto()
+    IN = enum.auto()
+    BOTH = enum.auto()
+
+    def reverse(self) -> Self:
+        match self:
+            case Direction.OUT:
+                return Direction.IN
+            case Direction.IN:
+                return Direction.OUT
+            case BOTH:
+                return BOTH
+
+    def orient(self, edge: Edge) -> Iterable[tuple[Node, Node]]:
+        match self:
+            case Direction.OUT:
+                return (edge.nodes,)
+            case Direction.IN:
+                return (edge.nodes_r,)
+            case Direction.BOTH:
+                return (edge.nodes, edge.nodes_r)
+            
 
 class GraphView:
 
