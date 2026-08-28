@@ -4,7 +4,7 @@ import abc
 import collections, collections.abc
 import enum
 import itertools
-from numbers import Number
+from numbers import Real
 from typing import Any, Iterable, Mapping, Self
 
 import utils
@@ -18,7 +18,7 @@ class Node:
 
 class Edge:
 
-    def __init__(self, from_: Node, to: Node, weight: Number = 1):
+    def __init__(self, from_: Node, to: Node, weight: Real = 1):
         self.from_ = from_
         self.to = to
         self.weight = weight
