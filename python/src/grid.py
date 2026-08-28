@@ -81,3 +81,58 @@ DIAGONAL_ONLY = tuple(Point(1, 1).rotate_fourfold())
 DIAGONAL_PLUS = TAXICAB + DIAGONAL_ONLY
 KNIGHT = tuple(Point(2, 1).rotate_eightfold())
 
+
+class GridNode(graph.Node):
+
+    def __init__(self, data: Any, point: Point):
+        super().__init__(data)
+        self.point = point
+
+
+class Grid(graph.Graph):
+
+    def __init__(
+        self, 
+        index: graph.Graph,
+        grid: Sequence[Sequence[GridNode]], 
+        edges: Iterable[graph.Edge]
+    ):
+        super().__init__(index, itertools.chain.from_iterable(grid), edges)
+        self.grid = grid
+
+    @staticmethod
+    def from_adjacency(
+        index: graph.Graph,
+        grid: Sequence[Sequence],
+        adjacency: Iterable[Point],
+    ) -> Self:
+        adjacency = tuple(adjacency)
+
+        node_grid = list()
+        for r in range(len(grid)):
+            node_grid.append(list())
+            for c in range(len(grid[r])):
+                node = GridNode(grid[r][c], Point.from_rc(r, c))
+                node_grid[-1].append(node)
+
+        edges = list()
+        for node, delta in itertools.product(itertools.chain.from_iterable(node_grid), adjacency):
+            node: GridNode
+            if Grid.in_bounds(node_grid, to := node.point + delta):
+                edges.append(graph.Edge(node, node_grid[to.r][to.c]))
+
+        super().__init__(index, node_grid, edges)
+
+    @staticmethod
+    def in_bounds(grid: Sequence[Sequence], point: Point):
+        return 0 <= point.r < len(grid) \
+            and 0 <= point.c < len(grid[point.r])
+
+    @staticmethod
+    def parse_str(
+        s: str,
+        row_delimiter: str = '\n',
+        col_delimiter: str = '',
+    ) -> list[list[str]]:
+        return [row.split(col_delimiter) for row in s.split(row_delimiter)]
+    
