@@ -90,4 +90,5 @@ def test_constants():
     assert DIAGONAL_ONLY == {(1, 1), (1, -1), (-1, 1), (-1, -1)}
     assert DIAGONAL_PLUS == TAXICAB | DIAGONAL_ONLY
     assert KNIGHT == {(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)}
+    assert SELF_VISIT == {(0, 0)}
     

@@ -83,6 +83,7 @@ TAXICAB = set(Point(1, 0).rotate_fourfold())
 DIAGONAL_ONLY = set(Point(1, 1).rotate_fourfold())
 DIAGONAL_PLUS = TAXICAB | DIAGONAL_ONLY
 KNIGHT = set(Point(2, 1).rotate_eightfold())
+SELF_VISIT = {ORIGIN}
 
 
 class GridNode(graph.Node):
