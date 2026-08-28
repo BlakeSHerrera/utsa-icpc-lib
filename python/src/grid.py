@@ -39,6 +39,9 @@ class Point(NamedTuple):
         '''This operation dialates the point about the origin.'''
         return Point(self.x * other, self.y * other)
 
+    def __rmul__(self, other: int) -> Self:
+        return self * other
+
     def __invert__(self) -> Self:
             '''Mirror about the line y=x.'''
             return Point(self.y, self.x)
