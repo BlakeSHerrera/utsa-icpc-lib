@@ -1,6 +1,5 @@
 
 import itertools
-import re
 from typing import Any, Iterable, Literal, Mapping, NamedTuple, Self, Sequence
 
 import graph
@@ -132,16 +131,3 @@ class Grid(graph.Graph):
     def in_bounds(grid: Sequence[Sequence], point: Point):
         return 0 <= point.r < len(grid) \
             and 0 <= point.c < len(grid[point.r])
-
-    @staticmethod
-    def parse_str(
-        s: str,
-        row_delimiter: str = '\n',
-        col_delimiter: str = '',
-    ) -> list[list[str]]:
-        rows = s.split(row_delimiter)
-        if not col_delimiter:
-            # A blank string delimiter in str.split is undefined
-            return list(map(list, rows))
-        return [row.split(col_delimiter) for row in rows]
-    
