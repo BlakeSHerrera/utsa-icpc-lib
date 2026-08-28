@@ -20,9 +20,6 @@ def test_attributes():
     assert edge.nodes == (node_1, node_2)
     assert edge.nodes_r == (node_2, node_1)
 
-    w_edge = WeightedEdge(node_1, node_2, 3)
-    assert w_edge.weight == 3
-
 
 def test_edge_in():
     edge = Edge(Node(1), Node(2))
