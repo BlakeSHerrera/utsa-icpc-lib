@@ -18,12 +18,13 @@ class Node:
 
 class Edge:
 
-    def __init__(self, from_: Node, to: Node):
+    def __init__(self, from_: Node, to: Node, weight: Number = 1):
         self.from_ = from_
         self.to = to
+        self.weight = weight
 
     def reverse(self) -> Self:
-        return  Edge(self.to, self.from_, **self.properties)
+        return Edge(self.to, self.from_)
 
     @property
     def nodes(self) -> tuple[Node, Node]:
@@ -44,13 +45,6 @@ class Edge:
                 return (self.from_,)
             case Direction.BOTH:
                 return self.nodes
-
-
-class WeightedEdge(Edge):
-
-    def __init__(self, from_: Node, to: Node, weight: Number):
-        super().__init__(from_, to)
-        self.weight = weight
 
 
 class Direction(utils.ZeroBasedEnum):
