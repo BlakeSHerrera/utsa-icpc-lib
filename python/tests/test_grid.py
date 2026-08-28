@@ -91,4 +91,32 @@ def test_constants():
     assert ADJACENT == TAXICAB | DIAGONAL
     assert KNIGHT == {(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)}
     assert SELF_VISIT == {(0, 0)}
-    
+
+
+def test_grid_parse():
+    expected = [
+        ['1', '2', '3'],
+        ['4', '5', '6'],
+        ['7', '8', '9']
+    ]
+    assert Grid.parse_str('123\n456\n789') == expected
+    assert Grid.parse_str('1 2 3|4 5 6|7 8 9', '|', ' ') == expected
+
+def test_grid_in_bounds():
+    # The grid is allowed to be ragged.
+    grid = [
+        [0],
+        [1, 2],
+    ]
+    for expected, r, c in [
+        (True, 0, 0),
+        (False, 0, 1),
+        (True, 1, 0),
+        (True, 1, 1),
+        (False, 1, 2),
+        (False, 2, 0),
+        (False, 0, -1),
+        (False, -1, 0),
+        (False, -1, -1),
+    ]:
+        assert Grid.in_bounds(grid, Point.from_rc(r, c)) == expected
