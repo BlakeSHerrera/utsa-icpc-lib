@@ -25,6 +25,7 @@ def point_rc() -> Point:
 def point() -> Point:
     ...
 
+@pytest.fixture
 def point_2() -> Point:
     return Point(X2, Y2)
 
@@ -80,4 +81,3 @@ def test_rotations(point: Point):
     mirrored = [~p for p in fourfold]
     eightfold = collections.Counter(mirrored + fourfold)
     assert eightfold == collections.Counter(point.rotate_eightfold())
-    
