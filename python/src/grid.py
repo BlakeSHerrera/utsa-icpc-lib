@@ -77,7 +77,7 @@ class Point(NamedTuple):
 
 ORIGIN = Point(0, 0)
 
-ROTATIONS = range(0, 361, 90)
+ROTATIONS = range(0, 360, 90)
 
 TAXICAB = tuple(Point(1, 0).rotate_fourfold())
 DIAGONAL_ONLY = tuple(Point(1, 1).rotate_fourfold())
