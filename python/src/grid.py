@@ -80,8 +80,8 @@ ORIGIN = Point(0, 0)
 ROTATIONS = set(range(0, 360, 90))
 
 TAXICAB = set(Point(1, 0).rotate_fourfold())
-DIAGONAL_ONLY = set(Point(1, 1).rotate_fourfold())
-DIAGONAL_PLUS = TAXICAB | DIAGONAL_ONLY
+DIAGONAL = set(Point(1, 1).rotate_fourfold())
+ADJACENT = TAXICAB | DIAGONAL
 KNIGHT = set(Point(2, 1).rotate_eightfold())
 SELF_VISIT = {ORIGIN}
 

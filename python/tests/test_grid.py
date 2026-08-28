@@ -87,8 +87,8 @@ def test_constants():
     assert ROTATIONS == {0, 90, 180, 270}
     assert ORIGIN == (0, 0)
     assert TAXICAB == {(0, 1), (1, 0), (0, -1), (-1, 0)}
-    assert DIAGONAL_ONLY == {(1, 1), (1, -1), (-1, 1), (-1, -1)}
-    assert DIAGONAL_PLUS == TAXICAB | DIAGONAL_ONLY
+    assert DIAGONAL == {(1, 1), (1, -1), (-1, 1), (-1, -1)}
+    assert ADJACENT == TAXICAB | DIAGONAL
     assert KNIGHT == {(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)}
     assert SELF_VISIT == {(0, 0)}
     
