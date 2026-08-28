@@ -77,12 +77,12 @@ class Point(NamedTuple):
 
 ORIGIN = Point(0, 0)
 
-ROTATIONS = range(0, 360, 90)
+ROTATIONS = set(range(0, 360, 90))
 
-TAXICAB = tuple(Point(1, 0).rotate_fourfold())
-DIAGONAL_ONLY = tuple(Point(1, 1).rotate_fourfold())
-DIAGONAL_PLUS = TAXICAB + DIAGONAL_ONLY
-KNIGHT = tuple(Point(2, 1).rotate_eightfold())
+TAXICAB = set(Point(1, 0).rotate_fourfold())
+DIAGONAL_ONLY = set(Point(1, 1).rotate_fourfold())
+DIAGONAL_PLUS = TAXICAB | DIAGONAL_ONLY
+KNIGHT = set(Point(2, 1).rotate_eightfold())
 
 
 class GridNode(graph.Node):

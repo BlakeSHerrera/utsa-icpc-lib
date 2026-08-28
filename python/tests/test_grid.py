@@ -84,9 +84,10 @@ def test_rotations(point: Point):
 
 
 def test_constants():
-    assert set(ROTATIONS) == set([0, 90, 180, 270])
+    assert ROTATIONS == {0, 90, 180, 270}
     assert ORIGIN == (0, 0)
-    assert set(TAXICAB) == set([(0, 1), (1, 0), (0, -1), (-1, 0)])
-    assert set(DIAGONAL_ONLY) == set([(1, 1), (1, -1), (-1, 1), (-1, -1)])
-    assert set(DIAGONAL_PLUS) == set(TAXICAB + DIAGONAL_ONLY)
-    assert set(KNIGHT) == set([(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)])
+    assert TAXICAB == {(0, 1), (1, 0), (0, -1), (-1, 0)}
+    assert DIAGONAL_ONLY == {(1, 1), (1, -1), (-1, 1), (-1, -1)}
+    assert DIAGONAL_PLUS == TAXICAB | DIAGONAL_ONLY
+    assert KNIGHT == {(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)}
+    
