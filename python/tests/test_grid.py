@@ -81,3 +81,12 @@ def test_rotations(point: Point):
     mirrored = [~p for p in fourfold]
     eightfold = collections.Counter(mirrored + fourfold)
     assert eightfold == collections.Counter(point.rotate_eightfold())
+
+
+def test_constants():
+    assert set(ROTATIONS) == set([0, 90, 180, 270])
+    assert ORIGIN == (0, 0)
+    assert set(TAXICAB) == set([(0, 1), (1, 0), (0, -1), (-1, 0)])
+    assert set(DIAGONAL_ONLY) == set([(1, 1), (1, -1), (-1, 1), (-1, -1)])
+    assert set(DIAGONAL_PLUS) == set(TAXICAB + DIAGONAL_ONLY)
+    assert set(KNIGHT) == set([(2, 1), (1, 2), (2, -1), (-1, 2), (-2, 1), (1, -2), (-2, -1), (-1, -2)])
