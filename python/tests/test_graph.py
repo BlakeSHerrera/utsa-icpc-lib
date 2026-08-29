@@ -62,10 +62,7 @@ class GraphDefinition:
     edges: list[Edge]
 
     def add_to(self, graph: Graph):
-        for node in self.nodes:
-            graph.add_node(node)
-        for edge in self.edges:
-            graph.add_edge(edge)
+        graph.add_all(self.nodes, self.edges)
 
     def remove_from(self, graph: Graph):
         for edge in self.edges:

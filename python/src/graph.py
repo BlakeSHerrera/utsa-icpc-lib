@@ -98,13 +98,16 @@ class Graph(GraphView, abc.ABC):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         super().__init__(self)
-        utils.apply(self.add_node, nodes)
-        utils.apply(self.add_edge, edges)
+        self.add_all(nodes, edges)
 
     def add_node(self, node: Node): raise NotImplementedError
     def add_edge(self, edge: Edge): raise NotImplementedError
     def remove_node(self, node: Node): raise NotImplementedError
     def remove_edge(self, edge: Edge): raise NotImplementedError
+    
+    def add_all(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        utils.apply(self.add_node, nodes)
+        utils.apply(self.add_edge, edges)
 
     def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
     def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
