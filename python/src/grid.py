@@ -93,15 +93,16 @@ class GridNode(graph.Node):
         self.point = point
 
 
-class Grid(graph.Graph):
+class Grid(graph.GraphView):
 
     def __init__(
         self, 
-        index: graph.Graph,
+        graph: graph.Graph,
         grid: Sequence[Sequence[GridNode]], 
         edges: Iterable[graph.Edge]
     ):
-        super().__init__(index, itertools.chain.from_iterable(grid), edges)
+        super().__init__(graph)
+        graph.add_all(itertools.chain.from_iterable(grid), edges)
         self.grid = grid
 
     @staticmethod
@@ -125,7 +126,7 @@ class Grid(graph.Graph):
             if Grid.in_bounds(node_grid, to := node.point + delta):
                 edges.append(graph.Edge(node, node_grid[to.r][to.c]))
 
-        super().__init__(index, node_grid, edges)
+        return Grid(index, node_grid, edges)
 
     @staticmethod
     def in_bounds(grid: Sequence[Sequence], point: Point):
