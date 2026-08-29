@@ -111,3 +111,31 @@ def test_grid_in_bounds():
         (False, -1, -1),
     ]:
         assert Grid.in_bounds(grid, Point.from_rc(r, c)) == expected
+
+
+def test_grid_from_adjacency():
+    grid: Grid = Grid.from_adjacency(
+        graph.AdjacencySet(),
+        ['123', '456', '789'],
+        KNIGHT
+    )
+    nodes = set(range(1, 10))
+    edges = {
+        (1, 6), (1, 8),
+        (2, 7), (2, 9),
+        (3, 4), (3, 8),
+        (4, 3), (4, 9),
+        (6, 1), (6, 7),
+        (7, 2), (7, 6),
+        (8, 1), (8, 3),
+        (9, 2), (9, 4),
+    }
+    for edge in grid.edges():
+        edges.remove((
+            int(edge.from_.data), 
+            int(edge.to.data)))
+    assert not edges
+    for node in grid.nodes():
+        nodes.remove(int(node.data))
+    assert not nodes
+    
