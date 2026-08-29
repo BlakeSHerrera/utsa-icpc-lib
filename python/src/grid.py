@@ -107,7 +107,7 @@ class Grid(graph.GraphView):
 
     @staticmethod
     def from_adjacency(
-        index: graph.Graph,
+        graph: graph.Graph,
         grid: Sequence[Sequence],
         adjacency: Iterable[Point],
     ) -> Self:
@@ -126,7 +126,7 @@ class Grid(graph.GraphView):
             if Grid.in_bounds(node_grid, to := node.point + delta):
                 edges.append(graph.Edge(node, node_grid[to.r][to.c]))
 
-        return Grid(index, node_grid, edges)
+        return Grid(graph, node_grid, edges)
 
     @staticmethod
     def in_bounds(grid: Sequence[Sequence], point: Point):
