@@ -20,9 +20,6 @@ def test_attributes():
     assert edge.nodes == (node_1, node_2)
     assert edge.nodes_r == (node_2, node_1)
 
-    w_edge = WeightedEdge(node_1, node_2, 3)
-    assert w_edge.weight == 3
-
 
 def test_edge_in():
     edge = Edge(Node(1), Node(2))
@@ -64,19 +61,16 @@ class GraphDefinition:
     nodes: list[Node]
     edges: list[Edge]
 
-    def add_to(self, graph: Graph):
-        for node in self.nodes:
-            graph.add_node(node)
-        for edge in self.edges:
-            graph.add_edge(edge)
+    def add_to(self, graph: MutableGraph):
+        graph.add_all(self.nodes, self.edges)
 
-    def remove_from(self, graph: Graph):
+    def remove_from(self, graph: MutableGraph):
         for edge in self.edges:
             graph.remove_edge(edge)
         for node in self.nodes:
             graph.remove_node(node)
 
-    def add_and_remove(self, graph: Graph):
+    def add_and_remove(self, graph: MutableGraph):
         self.add_to(graph)
         self.remove_from(graph)
 
@@ -154,35 +148,35 @@ def edge_search() -> EdgeSearch:
     ...
 
 @testutils.fixtures(adjacency_set_empty, element_set_empty, edge_search_empty)
-def empty_graph() -> Graph:
+def empty_graph() -> MutableGraph:
     ...
     
 @testutils.fixtures(*adjacency_set.fixtures, *element_set.fixtures, *edge_search.fixtures)
-def graph() -> Graph:
+def graph() -> MutableGraph:
     ...
 
-def test_graph_nodes(graph: Graph, elements: GraphDefinition):
+def test_graph_nodes(graph: MutableGraph, elements: GraphDefinition):
     try: assert set(graph.nodes()) == set(elements.nodes)
     except NotImplementedError: pass
 
-def test_graph_edges(graph: Graph, elements: GraphDefinition):
+def test_graph_edges(graph: MutableGraph, elements: GraphDefinition):
     try: assert set(graph.edges()) == set(elements.edges)
     except NotImplementedError: pass
 
-def test_graph_v(graph: Graph, elements: GraphDefinition):
+def test_graph_v(graph: MutableGraph, elements: GraphDefinition):
     try: assert graph.v() == len(elements.nodes)
     except NotImplementedError: pass
 
-def test_graph_e(graph: Graph, elements: GraphDefinition):
+def test_graph_e(graph: MutableGraph, elements: GraphDefinition):
     try: assert graph.e() == len(elements.edges)
     except NotImplementedError: pass
 
-def test_graph_bool(graph: Graph, elements: GraphDefinition):
+def test_graph_bool(graph: MutableGraph, elements: GraphDefinition):
     assert bool(graph) == bool(elements.nodes + elements.edges)
     elements.remove_from(graph)
     assert not bool(graph)
 
-def test_graph_degree(graph: Graph, elements: GraphDefinition):
+def test_graph_degree(graph: MutableGraph, elements: GraphDefinition):
     for node in elements.nodes:
         graph.add_edge(Edge(node, node))  # Self-edges are an edge case due to potential confusion
         graph.add_edge(Edge(node, node))  # Also test for multi-edges
@@ -196,7 +190,7 @@ def test_graph_degree(graph: Graph, elements: GraphDefinition):
             try: assert graph.degree(dir, node) == expected, f'Dir {dir} Elements are {elements.edges}'
             except NotImplementedError: pass
 
-def test_edges_between(graph: Graph, elements: GraphDefinition):
+def test_edges_between(graph: MutableGraph, elements: GraphDefinition):
     index: dict[tuple[Node, Node], set[Edge]] = collections.defaultdict(set)
     for edge in elements.edges:
         index[edge.nodes].add(edge)
@@ -206,7 +200,7 @@ def test_edges_between(graph: Graph, elements: GraphDefinition):
     except NotImplementedError:
         pass
 
-def test_neighbors(graph: Graph, elements: GraphDefinition):
+def test_neighbors(graph: MutableGraph, elements: GraphDefinition):
     neighbors: dict[Direction, dict[Node | Edge, list[Node | Edge]]] \
         = collections.defaultdict(lambda: collections.defaultdict(list))
     for edge, dir in itertools.product(elements.edges, Direction):
@@ -222,5 +216,5 @@ def test_neighbors(graph: Graph, elements: GraphDefinition):
         except NotImplementedError: pass
 
 
-def test_generic(graph: Graph):
-    assert isinstance(graph, Graph)
+def test_generic(graph: MutableGraph):
+    assert isinstance(graph, MutableGraph)

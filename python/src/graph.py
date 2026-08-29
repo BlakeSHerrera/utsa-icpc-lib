@@ -4,7 +4,7 @@ import abc
 import collections, collections.abc
 import enum
 import itertools
-from numbers import Number
+from numbers import Real
 from typing import Any, Iterable, Mapping, Self
 
 import utils
@@ -18,12 +18,13 @@ class Node:
 
 class Edge:
 
-    def __init__(self, from_: Node, to: Node):
+    def __init__(self, from_: Node, to: Node, weight: Real = 1):
         self.from_ = from_
         self.to = to
+        self.weight = weight
 
     def reverse(self) -> Self:
-        return  Edge(self.to, self.from_, **self.properties)
+        return Edge(self.to, self.from_)
 
     @property
     def nodes(self) -> tuple[Node, Node]:
@@ -44,13 +45,6 @@ class Edge:
                 return (self.from_,)
             case Direction.BOTH:
                 return self.nodes
-
-
-class WeightedEdge(Edge):
-
-    def __init__(self, from_: Node, to: Node, weight: Number):
-        super().__init__(from_, to)
-        self.weight = weight
 
 
 class Direction(utils.ZeroBasedEnum):
@@ -80,15 +74,16 @@ class Direction(utils.ZeroBasedEnum):
 
 class GraphView:
 
-    def __init__(self, graph: Graph):
+    def __init__(self, graph: GraphView):
         self._graph = graph
 
     def neighbors(self, direction: Direction, element: Node | Edge) -> Iterable[Node | Edge]:
         if isinstance(element, Edge):
             return element.neighbors(direction)
-        return self._graph._neighbors(direction, element)
+        return self._neighbors(direction, element)
 
     # Thin wrappers
+    def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: return self._graph._neighbors(direction, node)
     def degree(self, direction: Direction, node: Node) -> int: return self._graph.degree(direction, node)
     def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: return self._graph.edges_between(from_, to)
     def nodes(self) -> Iterable[Node]: return self._graph.nodes()
@@ -97,20 +92,23 @@ class GraphView:
     def e(self) -> int: return self._graph.e()
     def __bool__(self) -> bool: return bool(self._graph)
 
-    def __eq__(self, other: Graph) -> bool:
+    def __eq__(self, other: GraphView) -> bool:
         return set(self.nodes()) == set(other.nodes()) and set(self.edges()) == set(other.edges())
     
-class Graph(GraphView, abc.ABC):
+class MutableGraph(GraphView, abc.ABC):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         super().__init__(self)
-        utils.apply(self.add_node, nodes)
-        utils.apply(self.add_edge, edges)
+        self.add_all(nodes, edges)
 
     def add_node(self, node: Node): raise NotImplementedError
     def add_edge(self, edge: Edge): raise NotImplementedError
     def remove_node(self, node: Node): raise NotImplementedError
     def remove_edge(self, edge: Edge): raise NotImplementedError
+    
+    def add_all(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        utils.apply(self.add_node, nodes)
+        utils.apply(self.add_edge, edges)
 
     def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
     def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
@@ -122,14 +120,14 @@ class Graph(GraphView, abc.ABC):
     def __bool__(self) -> bool: raise NotImplementedError
 
 
-class LaxGraph(Graph, abc.ABC):
+class LaxGraph(MutableGraph, abc.ABC):
     def add_node(self, node: Node): pass
     def add_edge(self, edge: Edge): pass
     def remove_node(self, node: Node): pass
     def remove_edge(self, edge: Edge): pass
 
 
-class AdjacencySet(Graph):
+class AdjacencySet(MutableGraph):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         self._adjacency: Mapping[Direction, dict[Node, set[Edge]]] = [dict() for _ in Direction]
@@ -191,7 +189,7 @@ class AdjacencySet(Graph):
         return bool(self.v())
 
 
-class ElementSet(Graph):
+class ElementSet(MutableGraph):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         self._nodes: set[Node] = set()
@@ -241,7 +239,7 @@ class ElementSet(Graph):
         return bool(self._elements)
 
 
-class EdgeSearch(Graph):
+class EdgeSearch(MutableGraph):
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         self._nodes = set(nodes)
