@@ -93,21 +93,21 @@ class GridNode(graph.Node):
         self.point = point
 
 
-class Grid(graph.GraphView):
+class GridView(graph.GraphView):
 
     def __init__(
         self, 
-        graph: graph.MutableGraph,
+        backend: graph.MutableGraph,
         grid: Sequence[Sequence[GridNode]], 
         edges: Iterable[graph.Edge]
     ):
-        super().__init__(graph)
-        graph.add_all(itertools.chain.from_iterable(grid), edges)
-        self.grid = grid
+        super().__init__(backend)
+        backend.add_all(itertools.chain.from_iterable(grid), edges)
+        self._grid = grid
 
     @staticmethod
     def from_adjacency(
-        graph: graph.MutableGraph,
+        backend: graph.MutableGraph,
         grid: Sequence[Sequence],
         adjacency: Iterable[Point],
     ) -> Self:
@@ -123,10 +123,10 @@ class Grid(graph.GraphView):
         edges = list()
         for node, delta in itertools.product(itertools.chain.from_iterable(node_grid), adjacency):
             node: GridNode
-            if Grid.in_bounds(node_grid, to := node.point + delta):
+            if GridView.in_bounds(node_grid, to := node.point + delta):
                 edges.append(graph.Edge(node, node_grid[to.r][to.c]))
 
-        return Grid(graph, node_grid, edges)
+        return GridView(backend, node_grid, edges)
 
     @staticmethod
     def in_bounds(grid: Sequence[Sequence], point: Point):

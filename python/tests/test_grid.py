@@ -110,11 +110,11 @@ def test_grid_in_bounds():
         (False, -1, 0),
         (False, -1, -1),
     ]:
-        assert Grid.in_bounds(grid, Point.from_rc(r, c)) == expected
+        assert GridView.in_bounds(grid, Point.from_rc(r, c)) == expected
 
 
 def test_grid_from_adjacency():
-    grid: Grid = Grid.from_adjacency(
+    grid: GridView = GridView.from_adjacency(
         graph.AdjacencySet(),
         ['123', '456', '789'],
         KNIGHT
