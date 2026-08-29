@@ -97,7 +97,7 @@ class Grid(graph.GraphView):
 
     def __init__(
         self, 
-        graph: graph.Graph,
+        graph: graph.MutableGraph,
         grid: Sequence[Sequence[GridNode]], 
         edges: Iterable[graph.Edge]
     ):
@@ -107,7 +107,7 @@ class Grid(graph.GraphView):
 
     @staticmethod
     def from_adjacency(
-        graph: graph.Graph,
+        graph: graph.MutableGraph,
         grid: Sequence[Sequence],
         adjacency: Iterable[Point],
     ) -> Self:
