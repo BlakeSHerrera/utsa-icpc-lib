@@ -76,3 +76,25 @@ class FactoredInt(Number):
 
     def __contains__(self, prime: int) -> bool:
         return prime in self.prime_factors
+
+    @staticmethod
+    def factor(n: int) -> Self:
+        factors = collections.Counter()
+        for p in PRIMES:
+            if p * p > n:
+                break
+            while n % p == 0:
+                n //= p
+                factors[p] += 1
+        if PRIMES[-1] ** 2 < n:
+            raise NotEnoughPrimes(math.isqrt(n))
+        if n != 1:
+            factors[n] += 1
+        return FactoredInt(factors)
+
+    @staticmethod
+    def from_primes(nums: Iterable[int]) -> Self:
+        return FactoredInt(collections.Counter(nums))
+
+    def to_int(self) -> int:
+        return math.prod(itertools.starmap(pow, self.prime_factors.items()))
