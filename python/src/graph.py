@@ -529,3 +529,79 @@ class MutableBipartiteGraph(BipartiteGraphView, MutableGraphWrapper):
         elif b is None:
             self._parity[b] = not a
 
+
+class HypercubeGraphView(SimpleGraphView):
+
+    def __init__(self, hypercube_graph_view: HypercubeGraphView):
+        super().__init__(hypercube_graph_view)
+        self._hypercube_graph_view = hypercube_graph_view
+
+    def _neighbors(self, direction: Direction, node: Node) -> Iterable[SimpleEdge]:
+        i = self.index_of(node)
+        match direction:
+            case Direction.OUT:
+                return (SimpleEdge(node, self.nodes()[2 << j ^  i]) for j in range(self.n()))
+            case Direction.IN:
+                return (SimpleEdge(self.nodes()[2 << j ^  i], node) for j in range(self.n()))
+            case Direction.BOTH:
+                return itertools.chain(
+                    self._neighbors(Direction.OUT, node),
+                    self._neighbors(Direction.IN, node))
+
+    def degree(self, direction: Direction, node: Node) -> int:
+        return (1 + direction is Direction.BOTH) * self.n()
+    
+    def edges_between(self, from_: Node, to: Node) -> tuple[SimpleEdge]: 
+        from_i, to_i = map(self.index_of, (from_, to))
+        return ((from_i ^ to_i).bit_count() == 1) * (SimpleEdge(from_, to),)
+    
+    def nodes(self) -> Iterable[Node]: return self._graph.nodes()
+    def edges(self) -> Iterable[Edge]: return self._graph.edges()
+
+    def v(self) -> int:
+        return 2 ** self.n()
+    
+    def e(self) -> int:
+        self.v() * 2 * self.n()
+
+    def __eq__(self, other: Self) -> bool:
+        return self.n() == other.n() and set(self.nodes()) == set(other.nodes())
+
+    def has_node(self, node: Node):
+        return node in self.nodes()
+
+    def has_edge(self, edge: Edge):
+        return edge in self.edges()
+
+    def has_edge_between(self, from_: Node, to: Node):
+        return bool(self.edges_between(from_, to))
+
+    def n(self) -> int:
+        raise NotImplementedError
+
+    def f(self):
+        return self.e() - self.v() // 2 + 2
+
+    def index_of(self, node: Node) -> int:
+        raise NotImplementedError
+
+
+class MutableHypercubeGraph(HypercubeGraphView):
+
+    def __init__(self, n: int, data: Iterable):
+        super().__init__(self)
+        self._n = n
+        self._nodes = list(map(Node, data))
+        self._index = {v: i for i, v in enumerate(self._nodes)}
+        if len(self.nodes) != 2 ** n:
+            raise ValueError('Data does not match number of nodes in hypercube graph.')
+
+    def nodes(self) -> list[Node]:
+        return self._nodes
+
+    def n(self):
+        return self._n
+
+    def index_of(self, node: Node):
+        return self._index[node]
+    
