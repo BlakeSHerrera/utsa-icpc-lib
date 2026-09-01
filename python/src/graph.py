@@ -688,3 +688,32 @@ class MutableCompleteGraph(CompleteGraphView):
     def remove_node(self, node: Node):
         self._nodes.remove(node)
 
+
+class BipartiteGraphView(GraphView):
+    pass
+
+class MutableBipartiteGraph(BipartiteGraphView, MutableGraphWrapper):
+
+    def __init__(self, backend: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        self._parity: dict[Node, bool] = dict()
+        BipartiteGraphView.__init__(self)
+        MutableGraphWrapper.__init__(self, backend, nodes, edges)
+
+    def remove_node(self, node: Node):
+        MutableGraphWrapper.remove_node(self, node)
+        self._parity.pop(node, None)
+
+    def add_edge(self, edge: Edge):
+        a = self._parity.get(edge.from_)
+        b = self._parity.get(edge.to)
+        if a is not None and b is not None:
+            if a == b:
+                raise ValueError('Violation of parity in bipartite graph.')
+        elif a is None and b is None:
+            # TODO What to do? How to efficiently check invariant violation if two disjoint sets are combined?
+            raise NotImplementedError
+        elif a is None:
+            self._parity[a] = not b
+        elif b is None:
+            self._parity[b] = not a
+
