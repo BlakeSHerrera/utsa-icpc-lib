@@ -61,3 +61,18 @@ class Ordering(enum.Enum):
     UNORDERED = enum.auto()
     ASCENDING = enum.auto()
     DESCENDING = enum.auto()
+
+
+class FactoredInt(Number):
+
+    def __init__(self, prime_factors: collections.Counter):
+        self.prime_factors = prime_factors
+
+    def __bool__(self) -> bool:
+        return bool(self.prime_factors)
+
+    def __getitem__(self, prime: int) -> int:
+        return self[prime]
+
+    def __contains__(self, prime: int) -> bool:
+        return prime in self.prime_factors
