@@ -108,7 +108,7 @@ class Point(NamedTuple):
         return itertools.chain(
             self.rotate_fourfold(),
             (~self).rotate_fourfold())
-
+    
 
 ORIGIN = Point(0, 0)
 
