@@ -168,6 +168,33 @@ class FactoredInt(Number):
             else 1 if len(self.prime_factors) % 2 == 0 \
             else -1 
 
+    def all_divisors(self, ordering: Ordering) -> Iterable[Self]:
+        primes = list(self.prime_factors)
+        match ordering:
+            case Ordering.UNORDERED:
+                bag = baglib.Stack()
+                base = FactoredInt.from_primes(())
+            case Ordering.ASCENDING:
+                bag = baglib.Heap(comparator = operator.lt)
+                base = FactoredInt.from_primes(())
+            case Ordering.DESCENDING:
+                bag = baglib.Heap(comparator = operator.gt)
+                base = self
+        bag.push((base, 0))
+
+        while bag:
+            base, prime_index = bag.pop()
+            yield base
+            for i in range(prime_index, len(primes)):
+                p = primes[i]
+                if base[p] == (0 if ordering is Ordering.DESCENDING else self[p]):
+                    continue
+                new = FactoredInt(collections.Counter({p: -1 if ordering is Ordering.DESCENDING else 1}))
+                bag.push((base * new, i))
+
+    def divisor_pairs(self) -> Iterable[tuple[FactoredInt, FactoredInt]]:
+        # Note edge case for squares
+        return ((d, (self / d).numerator) for d in self.all_divisors(Ordering.UNORDERED) if d * d <= self)
 
 
 @dataclasses.dataclass
