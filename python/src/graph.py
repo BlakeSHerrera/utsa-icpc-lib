@@ -626,3 +626,65 @@ class MutableRingGraph(RingGraphView):
     def index_of(self, node: Node):
         return self._index[node]
 
+
+class CompleteGraphView(SimpleGraphView):
+
+    def __init__(self, dense_graph: MutableCompleteGraph):
+        super().__init__(dense_graph)
+        self._dense_graph = dense_graph
+
+    def _neighbors(self, direction: Direction, node: Node) -> Iterable[SimpleEdge]:
+        nodes = filter(node.__eq__, self.nodes())
+        match direction:
+            case Direction.OUT:
+                return (SimpleEdge(node, i) for i in nodes)
+            case Direction.IN:
+                return (SimpleEdge(i, node) for i in nodes)
+            case Direction.BOTH:
+                return itertools.chain(
+                    self._neighbors(Direction.OUT, node), 
+                    self._neighbors(Direction.IN, node))
+
+    def degree(self, direction: Direction, node: Node) -> int:
+        return (1 + direction is Direction.BOTH) * (self.v() - 1)
+
+    def edges_between(self, from_: Node, to: Node) -> Iterable[SimpleEdge]:
+        return SimpleEdge(from_, to)
+
+    def nodes(self) -> set[Node]:
+        return self._dense_graph.nodes()
+
+    def edges(self) -> Iterable[SimpleEdge]:
+        return itertools.starmap(SimpleEdge, itertools.permutations(self.nodes(), r = 2))
+
+    def v(self) -> int:
+        return len(self.nodes())
+
+    def e(self) -> int:
+        v = self.v()
+        return v * (v - 1)
+
+    def __bool__(self):
+        return bool(self.nodes())
+
+    def __eq__(self, other: CompleteGraphView):
+        return self.nodes() == other.nodes()
+
+    def has_edge(self, edge: SimpleEdge):
+        return self.has_edge_between(*edge.nodes)
+
+    def has_edge_between(self, from_: Node, to: Node):
+        return all(map(self.has_edge, (from_, to)))
+    
+
+class MutableCompleteGraph(CompleteGraphView):
+
+    def __init__(self, nodes: Iterable[Node] = ()):
+        self._nodes = set(nodes)
+
+    def add_node(self, node: Node):
+        self._nodes.add(node)
+
+    def remove_node(self, node: Node):
+        self._nodes.remove(node)
+
