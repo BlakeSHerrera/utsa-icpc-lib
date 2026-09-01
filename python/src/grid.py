@@ -43,8 +43,8 @@ class Point(NamedTuple):
         return self * other
 
     def __invert__(self) -> Self:
-            '''Mirror about the line y=x.'''
-            return Point(self.y, self.x)
+        '''Mirror about the line y=x.'''
+        return Point(self.y, self.x)
     
     def rotate(self, degrees: Literal[0, 90, 180, 270]) -> Self:
         '''
@@ -73,7 +73,7 @@ class Point(NamedTuple):
         return itertools.chain(
             self.rotate_fourfold(),
             (~self).rotate_fourfold())
-
+    
 
 ORIGIN = Point(0, 0)
 
