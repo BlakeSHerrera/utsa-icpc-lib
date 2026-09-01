@@ -38,3 +38,26 @@ def is_prime(n: int):
 def is_composite(n: int):
     return not is_prime(n) if n >= 2 else False
 
+
+def sieve(n: int) -> list[int]:
+    primes = [2]
+    data = [True] * (n // 2)  # Each index corresponds to n = 2 * i + 1
+    end = math.isqrt(n) + 1
+    for i in range(1, end):
+        primes.append(2 * i + 1)
+        start, stop, skip = i * 3, len(data), 2 * i
+        data[start:stop:skip] = itertools.repeat(False, len(range(start, stop, skip)))
+    for i in range(end, len(data)):
+        if primes[i]:
+            primes.append(2 * i + 1)
+    return primes
+
+def generate_primes(n: int):
+    global PRIMES
+    PRIMES = sieve(n)
+
+
+class Ordering(enum.Enum):
+    UNORDERED = enum.auto()
+    ASCENDING = enum.auto()
+    DESCENDING = enum.auto()
