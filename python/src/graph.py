@@ -336,3 +336,25 @@ class EdgeSearch(MutableGraph):
 
     def __bool__(self) -> bool:
         return bool(self._nodes)
+
+
+
+class SimpleGraphView(GraphView):
+
+    def neighbors(self, direction: Direction, element: Node | SimpleEdge) -> Iterable[Node | SimpleEdge]:
+        if isinstance(element, Edge):
+            return element.neighbors(direction)
+        return self._neighbors(direction, element)
+
+class MutableSimpleGraph(SimpleGraphView, MutableGraphWrapper):
+
+    def __init__(self, backend: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        SimpleGraphView.__init__(self, backend)
+        MutableGraphWrapper.__init__(self, backend, nodes, edges)
+
+    def add_edge(self, edge: Edge):
+        if edge.from_ is edge.to:
+            raise ValueError('Simple graphs cannot contain self-edges.')
+        if self._backend.has_edge_between(*edge.nodes):
+            raise ValueError('Simple graphs cannot contain multi edges.')
+        self._backend.add_edge(edge)
