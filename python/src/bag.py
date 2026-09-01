@@ -1,6 +1,7 @@
 import abc
 import collections
-from typing import Iterable, TypeVar, Generic
+import operator
+from typing import Callable, Iterable, TypeVar, Generic
 
 import view
 
@@ -112,3 +113,68 @@ class DequeQueue(DequeBag[T], Queue[T]):
 
     def peek(self) -> T:
         return self[0]
+
+
+
+class Heap(Bag[T], abc.ABC):
+    pass
+
+
+class ListHeap(view.ListView, Heap[T]):
+
+    def __init__(self, items: Iterable[T] = (), comparator: Callable[[T, T], bool] = operator.lt):
+        super().__init__(list(items))
+        self.compare = comparator
+        self._heapify()
+
+    def __iter__(self):
+        return Heap.__iter__(self)
+
+    def push(self, item: T):
+        self._data.append(item)
+        self._sift_up(len(self) - 1)
+
+    def peek(self) -> T:
+        return self[0]
+
+    def pop(self) -> T:
+        self._swap(0, -1)
+        r = self._data.pop()
+        self._sift_down(0)
+        return r
+
+    def _swap(self, i: int, j: int):
+        temp = self._data[i]
+        self._data[i] = self._data[j]
+        self._data[j] = temp
+
+    @staticmethod
+    def parent_i(index: int) -> int:
+        return (index - 1) // 2
+
+    @staticmethod
+    def child_i(index: int) -> Iterable[T]:
+        return (index * 2 + 1, index * 2 + 2)
+
+    def _heapify(self):
+        for i in range(len(self) // 2, -1, -1):
+            self._sift_down(i)
+
+    def _sift_down(self, index: int):
+        while index < len(self) // 2:
+            best = index
+            for j in self.child_i(index):
+                if j < len(self) and self.compare(self[j], self[best]):
+                    best = j
+            if best == index:
+                break
+            self._swap(best, index)
+            index = best
+
+    def _sift_up(self, index: int):
+        while index > 0:
+            p = ListHeap.parent_i(index)
+            if not self.compare(self[index], self[p]):
+                break
+            self._swap(index, p)
+            index = p
