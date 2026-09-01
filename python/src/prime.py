@@ -98,3 +98,62 @@ class FactoredInt(Number):
 
     def to_int(self) -> int:
         return math.prod(itertools.starmap(pow, self.prime_factors.items()))
+
+    def __mul__(self, other: Self):
+        return FactoredInt(self.prime_factors + other.prime_factors)
+
+    def __pow__(self, other: int):
+        return FactoredInt(collections.Counter({p: e * other for p, e in self.prime_factors.items()}))
+
+    def __truediv__(self, other: Self) -> DivisionResult:
+        num = FactoredInt(self.prime_factors - other.prime_factors)
+        denom = FactoredInt(other.prime_factors - self.prime_factors)
+        gcf = FactoredInt(self.prime_factors - num.prime_factors)
+        lcm = num * denom * gcf
+        return DivisionResult(num, denom, gcf, lcm)
+
+    def __mod__(self, other: Self) -> FactoredInt:
+        # Only works if divisible, otherwise KeyError
+        return FactoredInt(
+            collections.Counter(
+                map(
+                    self.__getitem__, 
+                    itertools.filterfalse(other.__contains__, self.prime_factors))))
+
+    def __eq__(self, other: Self) -> bool:
+        return self.prime_factors == other.prime_factors
+
+    def log(self, base: Real = math.e):
+        return sum(e * math.log(p, base) for p, e in self.prime_factors.items())
+
+    def log2(self):
+        return sum(e * math.log2(p) for p, e in self.prime_factors.items())
+
+    def log10(self):
+        return sum(e * math.log10(p) for p, e in self.prime_factors.items())
+
+    def __lt__(self, other: Self) -> bool:
+        result = self / other
+        if not result.denominator:
+            return False
+        if not result.numerator:
+            return True
+        return result.numerator.log2() < result.denominator.log2()  # log2 is hardware-optimized
+        
+    def greatest_common_factor(self, other: Self) -> Self:
+        return (self / other).greatest_common_factor
+
+    def least_common_multiple(self, other: Self) -> Self:
+        return (self / other).least_common_multiple
+
+    def is_coprime(self, other: Self) -> bool:
+        return not self.greatest_common_factor(other)
+
+
+
+@dataclasses.dataclass
+class DivisionResult:
+    numerator: FactoredInt
+    denominator: FactoredInt
+    greatest_common_factor: FactoredInt
+    least_common_multiple: FactoredInt
