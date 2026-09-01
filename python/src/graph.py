@@ -358,3 +358,83 @@ class MutableSimpleGraph(SimpleGraphView, MutableGraphWrapper):
         if self._backend.has_edge_between(*edge.nodes):
             raise ValueError('Simple graphs cannot contain multi edges.')
         self._backend.add_edge(edge)
+
+
+class RingGraphView(SimpleGraphView):
+
+    def __init__(self, semi_dense_graph: RingGraphView):
+        super().__init__(semi_dense_graph)
+        self._semi_dense_graph = semi_dense_graph
+
+    def _neighbors(self, direction: Direction, node: Node) -> Iterable[SimpleEdge]:
+        nodes = self.nodes()
+        n = len(nodes)
+        product = itertools.product(range(n), self.connections())
+        match direction:
+            case Direction.OUT:
+                return (SimpleEdge(nodes[i], nodes[j % n]) for i, j in product)
+            case Direction.IN:
+                return (SimpleEdge(nodes[-j % n], nodes[i]) for i, j in product)
+            case Direction.BOTH:
+                return itertools.chain(
+                    self._neighbors(direction.OUT, node), 
+                    self._neighbors(direction.IN, node))
+    
+    def edges_between(self, from_: Node, to: Node) -> tuple[SimpleEdge]:
+        i, j = map(self.index_of, (from_, to))
+        return (SimpleEdge(from_, to),) if (j - i) in self.connections() else ()
+
+    def nodes(self) -> Sequence[Node]:
+        raise NotImplementedError
+    
+    def edges(self) -> Iterable[SimpleEdge]: 
+        return itertools.chain.from_iterable(self._neighbors(Direction.OUT, i) for i in self.nodes())
+
+    def v(self) -> int: 
+        return len(self.nodes())
+
+    def e(self) -> int:
+        return self.v() * len(self.connections)
+    
+    def __bool__(self) -> bool: 
+        return bool(self.v())
+
+    def __eq__(self, other: RingGraphView) -> bool:
+        return set(self.nodes()) == set(other.nodes()) and set(self.connections) == set(other.connections)
+
+    def has_node(self, node: Node) -> bool:
+        return node in self.nodes()
+
+    def has_edge(self, edge: Edge) -> bool:
+        return bool(self.edges_between(*edge.nodes))
+
+    def has_edge_between(self, from_: Node, to: Node):
+        return not utils.is_empty(self.edges_between(from_, to))
+
+    def connections(self) -> set[int]:
+        raise NotImplementedError
+
+    def index_of(self, node: Node) -> int:
+        raise NotImplementedError
+
+
+class MutableRingGraph(RingGraphView):
+    # TODO not really mutable
+
+    def __init__(self, nodes: Iterable[Node], connections: Iterable[int]):
+        super().__init__(self)
+        self._nodes = tuple(nodes)
+        self._index = {v: i for i, v in self._nodes}
+        self._connections = {i % len(self._nodes) for i in connections}
+        if 0 in self._connections:
+            raise ValueError('Self-edges violate simple graph invariant.')
+
+    def nodes(self) -> tuple[Node]:
+        return self._nodes
+
+    def connections(self) -> set[int]:
+        return self._connections
+
+    def index_of(self, node: Node):
+        return self._index[node]
+
