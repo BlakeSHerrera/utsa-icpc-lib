@@ -1,7 +1,9 @@
-from bag import *
+import itertools
+import random
 
 import pytest
 
+from bag import *
 import testutils
 
 
@@ -29,7 +31,15 @@ def list_stack() -> ListStack:
 def stack() -> Stack:
     ...
 
-@testutils.fixtures(*queue.fixtures, *stack.fixtures)
+@pytest.fixture
+def list_heap() -> ListHeap:
+    return ListHeap()
+
+@testutils.fixtures(list_heap)
+def heap() -> Heap:
+    ...
+
+@testutils.fixtures(*queue.fixtures, *stack.fixtures, *heap.fixtures)
 def bag() -> Bag:
     ...
 
@@ -62,6 +72,8 @@ def test_push_all(bag: Bag):
     assert len(bag) == len(R)
 
 def test_pop(bag: Bag):
+    with pytest.raises(IndexError):
+        bag.pop()
     bag.push_all(R)
     for i in R:
         assert len(bag) == N - i
@@ -70,7 +82,7 @@ def test_pop(bag: Bag):
 
 def test_peek_pop(bag: Bag):
     bag.push_all(R)
-    for i in R:
+    for _ in R:
         assert bag.peek() == bag.pop()
 
 def test_iter(bag: Bag):
@@ -92,3 +104,22 @@ def test_stack(stack: Stack):
 def test_queue(queue: Queue):
     queue.push_all(R)
     assert list(queue) == list(R)
+
+#  ===== Heap =====
+
+@pytest.mark.parametrize(
+    argnames = ['size', 'from_constructor', 'comparator'],
+    argvalues = tuple(itertools.product(
+        (*range(1, 5), *range(254, 257)), 
+        (True, False), 
+        (operator.lt, operator.gt))))
+def test_heap_sort(size: int, from_constructor: bool, comparator: Callable[[int, int], bool]):
+    random.seed(42)
+    nums = [random.randint(0, 100) for _ in range(size)]
+    sorted_nums = sorted(nums, reverse = comparator is operator.gt)
+    if from_constructor:
+        heap = ListHeap(nums, comparator)
+    else:
+        heap = ListHeap(comparator = comparator)
+        heap.push_all(nums)
+    assert list(heap) == sorted_nums
