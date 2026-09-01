@@ -149,6 +149,25 @@ class FactoredInt(Number):
     def is_coprime(self, other: Self) -> bool:
         return not self.greatest_common_factor(other)
 
+    def radical(self) -> FactoredInt:
+        return FactoredInt(collections.Counter(zip(self.prime_factors, itertools.repeat(1))))
+    
+    def num_divisors(self) -> FactoredInt:
+        return math.prod(FactoredInt.factor(i + 1) for i in self.prime_factors.values())
+
+    def sum_divisors(self) -> int:
+        # Return a FactoredInt instead?
+        return math.prod((p ** (e + 1) - 1) // (p - 1) for p, e in self.prime_factors.items())
+
+    def euler_totient(self) -> FactoredInt:
+        return (self / self.radical()).numerator \
+            * math.prod(FactoredInt.factor(p - 1) for p in self.prime_factors)
+
+    def mobius(self) -> int:
+        return 0 if max(self.prime_factors.values()) > 1 \
+            else 1 if len(self.prime_factors) % 2 == 0 \
+            else -1 
+
 
 
 @dataclasses.dataclass
