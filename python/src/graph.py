@@ -5,7 +5,7 @@ import collections, collections.abc
 import enum
 import itertools
 from numbers import Real
-from typing import Any, Iterable, Mapping, Self
+from typing import Any, Iterable, Literal, Mapping, Self, Sequence
 
 import utils
 
@@ -45,6 +45,23 @@ class Edge:
                 return (self.from_,)
             case Direction.BOTH:
                 return self.nodes
+
+    def neighbor(self, direction: Literal[Direction.OUT, Direction.IN]) -> Node:
+        match direction:
+            case Direction.OUT:
+                return self.to
+            case Direction.IN:
+                return self.from_    
+        raise ValueError('Neighbor only accepts Direction.OUT and Direction.IN')
+
+
+class SimpleEdge(Edge):
+
+    def __hash__(self):
+        return hash(self.nodes)
+
+    def __eq__(self, other: SimpleEdge):
+        return self.nodes == other.nodes
 
 
 class Direction(utils.ZeroBasedEnum):
@@ -94,6 +111,17 @@ class GraphView:
 
     def __eq__(self, other: GraphView) -> bool:
         return set(self.nodes()) == set(other.nodes()) and set(self.edges()) == set(other.edges())
+
+    def has_node(self, node: Node):
+        return node in self.nodes()
+
+    def has_edge(self, edge: Edge):
+        return edge in self.edges()
+
+    def has_edge_between(self, from_: Node, to: Node):
+        return not utils.is_empty(self.edges_between(from_, to))
+    
+    
     
 class MutableGraph(GraphView, abc.ABC):
 
@@ -123,8 +151,23 @@ class MutableGraph(GraphView, abc.ABC):
 class LaxGraph(MutableGraph, abc.ABC):
     def add_node(self, node: Node): pass
     def add_edge(self, edge: Edge): pass
-    def remove_node(self, node: Node): pass
+    def remove_node(self, node: Node):
+        for edge in self._neighbors(Direction.BOTH, node):
+            self.remove_edge(edge)
     def remove_edge(self, edge: Edge): pass
+
+
+class MutableGraphWrapper(GraphView, MutableGraph):
+
+    def __init__(self, backend: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        super().__init__(backend)
+        self._backend = backend
+        self.add_all(nodes, edges)
+
+    def add_node(self, node: Node): return self._backend.add_node(node)
+    def add_edge(self, edge: Edge): return self._backend.add_edge(edge)
+    def remove_node(self, node: Node): return self._backend.remove_node(node)
+    def remove_edge(self, edge: Edge): return self._backend.remove_edge(edge)
 
 
 class AdjacencySet(MutableGraph):
@@ -216,7 +259,7 @@ class ElementSet(MutableGraph):
         self._edges.remove(edge)
         self._elements.remove(edge)
 
-    # def neighbor_nodes(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
+    # def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]: raise NotImplementedError
     # def degree(self, direction: Direction, node: Node) -> int: raise NotImplementedError
     # def edges_between(self, from_: Node, to: Node) -> Iterable[Edge]: raise NotImplementedError
     
