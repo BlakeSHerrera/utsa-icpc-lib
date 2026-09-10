@@ -65,3 +65,8 @@ This module also defines a `Point` class which is a helper around x/y and row/co
 
 Various utilities for common programming patterns not offered by the standard library.
 
+### view
+
+Provides wrappers around base data structures to provide data-reading operations for built-in types without being able to modify them.
+
+This philosophy extends around the project with views and mutable classes. Classes with more specific constraints can be viewed as the higher-order class but not modified like one. For example, a tree can be viewed as a graph for the purposes of performing graph algorithms like a BFS traversal, however, it has constraints that mean it cannot be modified at-will like any graph.
