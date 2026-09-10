@@ -37,3 +37,21 @@ This module contains implementations of "bags", which are objects that fundament
 
 Common types of bags are the `Stack`, the `Queue`, and the `Heap` (sometimes called a `PriorityQueue`). Because there are multiple ways to implement these, the concrete classes include the name of the implementation used (such as a `ListHeap` using a `list` to create the heap).
 
+### graph
+
+A graph is a data structure that consists of nodes and edges that connect two nodes.
+
+This library treats graphs as directed, weighted multigraphs. That is, all edges have directions (directed graph), and all edges have weight (weighted graph). Edges can connect the same node to itself, and multiple edges between the same nodes are allowed (multigraph). Read on to see how to simulate an undirected or unweighted graph.
+
+An unweighted graph is very easy to implement. Algorithms can simply ignore the edge weight. By default, edges all have a weight of 1, which could potentially be used to count the number of steps taken in a traversal.
+
+Similarly, to create an undirected graph, the edge direction can be ignored. Traversal is done with the `Direction` enum, which has the values `OUT`, `IN`, and `BOTH`. Thus, an undirected graph can be thought of as a graph where there is no edge `(u, v)` with a counterpart `(v, u)`, and the algorithm can simply utilize `Direction.BOTH` to traverse.
+
+#### Abstract Base Classes
+
+Importantly, a `Graph` is an abstract class. That is, it defines the methods that are available (such as getting the nodes, edges, and neighbors, as well as adding/removing them), but how the information is stored and retrieved is an implementation detail for subclasses. A graph can be constructed many ways (like the `bag`s above); currently there is `AdjacencySet`, `ElementSet`, and `EdgeLookup` as concrete classes.
+
+The graph subclasses do not implement all of the methods if they are inefficient in doing so. For example, the `EdgeLookup` class is designed solely to get a list of edges from node `u` to `v` in constant time, but cannot efficiently count the number of edges. Trying to call a method which is not implemented will raise a `NotImplementedError` exception at runtime.
+
+A programmer could combine the benefits and drawbacks of different implementations by creating a subclass composed of multiple concrete implementations (a composite graph model). Adding or removing a node or edge is broadcast to the underlying implementations, and the best implementation is picked for each method, such as the edge lookup question vs. the number of edges question.
+
