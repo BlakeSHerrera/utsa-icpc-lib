@@ -61,3 +61,7 @@ This module provides helpers to turn a matrix into a graph for use in graph algo
 
 This module also defines a `Point` class which is a helper around x/y and row/col representations of coordinates, since they are inverses of each other. These are integer coordinates.
 
+### utils
+
+Various utilities for common programming patterns not offered by the standard library.
+
