@@ -31,3 +31,9 @@ Developers will want to create a virtual environment via:
 
 ## Project Structure
 
+### bag
+
+This module contains implementations of "bags", which are objects that fundamentally have two operations: putting an item in (a `push`), and taking an item out (a `pop`). This library also includes `peek` to get the next item without `pop`ping it, the size via the `len()` function, and truthiness dependent on whether the bag is empty or not.
+
+Common types of bags are the `Stack`, the `Queue`, and the `Heap` (sometimes called a `PriorityQueue`). Because there are multiple ways to implement these, the concrete classes include the name of the implementation used (such as a `ListHeap` using a `list` to create the heap).
+
