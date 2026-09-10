@@ -55,3 +55,9 @@ The graph subclasses do not implement all of the methods if they are inefficient
 
 A programmer could combine the benefits and drawbacks of different implementations by creating a subclass composed of multiple concrete implementations (a composite graph model). Adding or removing a node or edge is broadcast to the underlying implementations, and the best implementation is picked for each method, such as the edge lookup question vs. the number of edges question.
 
+### grid
+
+This module provides helpers to turn a matrix into a graph for use in graph algorithms. There are also helpers to get nodes by their row and column. Note that these grid graphs can be connected in interesting ways such as knight movements.
+
+This module also defines a `Point` class which is a helper around x/y and row/col representations of coordinates, since they are inverses of each other. These are integer coordinates.
+
