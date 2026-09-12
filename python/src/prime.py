@@ -87,7 +87,7 @@ def sieve(n: int) -> list[int]:
 def generate_primes(n: int):
     '''Generate primes and set the global PRIMES list.'''
     global PRIMES
-    PRIMES = sieve(n)
+    PRIMES[:] = sieve(n)
 
 
 class Ordering(enum.Enum):
