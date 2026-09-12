@@ -78,7 +78,7 @@ def sieve(n: int) -> list[int]:
         start, stop, skip = i * 3, len(data), 2 * i
         data[start:stop:skip] = itertools.repeat(False, len(range(start, stop, skip)))
     for i in range(end, len(data)):
-        if primes[i]:
+        if data[i]:
             primes.append(2 * i + 1)
     return primes
 
