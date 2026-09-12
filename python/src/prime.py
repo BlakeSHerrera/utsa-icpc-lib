@@ -248,26 +248,27 @@ class FactoredInt(Number):
         '''
         return not self.greatest_common_factor(other)
 
-    def radical(self) -> FactoredInt:
+    def radical(self) -> Self:
         '''
         Find the radical (or rad) of a factored integer and return a new factored integer.
         The radical is the product of all distinct prime integers that divide n.
         '''
         return FactoredInt(collections.Counter(zip(self.prime_factors, itertools.repeat(1))))
     
-    def divisor_count(self) -> FactoredInt:
+    def divisor_count(self) -> Self:
         '''
         Find the count of divisors that the factored integer has, returning the
         result as a new factored integer.
         '''
         return math.prod(FactoredInt.factor(i + 1) for i in self.prime_factors.values())
 
-    def divisor_sum(self) -> int:
-        '''Find the sum of the factored integer's divisors.'''
-        # Return a FactoredInt instead?
-        return math.prod((p ** (e + 1) - 1) // (p - 1) for p, e in self.prime_factors.items())
+    def divisor_sum(self) -> Self:
+        '''Find the sum of the factored integer's divisors as a factored integer.'''
+        numerator: FactoredInt = math.prod(FactoredInt.factor(p ** (e + 1) - 1) for p, e in self.prime_factors.items())
+        denominator: FactoredInt = math.prod(FactoredInt.factor(p - 1) for p in self.prime_factors)
+        return (numerator / denominator).numerator
 
-    def euler_totient(self) -> FactoredInt:
+    def euler_totient(self) -> Self:
         '''
         The euler totient counts the number of integers that are relatively
         prime (or coprime) up to n. It it written using the Greek letter phi.
@@ -313,7 +314,7 @@ class FactoredInt(Number):
                 new = FactoredInt(collections.Counter({p: -1 if ordering is Ordering.DESCENDING else 1}))
                 bag.push((base * new, i))
 
-    def divisor_pairs(self) -> Iterable[tuple[FactoredInt, FactoredInt]]:
+    def divisor_pairs(self) -> Iterable[tuple[Self, Self]]:
         '''
         Iterate through all pairs of divisors that multiply to n.
         This function is not ordered.
@@ -328,7 +329,7 @@ class FactoredInt(Number):
 @dataclasses.dataclass
 class DivisionResult:
     '''A dataclass for a division result between two factored integers.'''
-    
+
     numerator: FactoredInt
     denominator: FactoredInt
     greatest_common_factor: FactoredInt
