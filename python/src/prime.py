@@ -29,6 +29,7 @@ class NotEnoughPrimes(Exception):
     '''
 
     def __init__(self, n: int):
+        self.n = n
         super().__init__(f'Need primes up to {n}')
 
 
