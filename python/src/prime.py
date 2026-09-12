@@ -61,7 +61,7 @@ def is_composite(n: int):
     The inverse of is_prime, except that integers below 2 are
     neither prime nor composite.
     '''
-    return not is_prime(n) if n >= 2 else False
+    return n >= 2 and not is_prime(n)
 
 
 def sieve(n: int) -> list[int]:
