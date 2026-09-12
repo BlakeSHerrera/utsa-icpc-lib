@@ -134,7 +134,7 @@ class FactoredInt(Number):
         return prime in self.prime_factors
 
     @staticmethod
-    def factor(n: int) -> Self:
+    def factor(n: int) -> FactoredInt:
         '''
         Factor an integer and return a FactoredInt object.
         If n is less than 1, raise a ValueError.
@@ -155,7 +155,7 @@ class FactoredInt(Number):
         return FactoredInt(factors)
 
     @staticmethod
-    def from_primes(primes: Iterable[int]) -> Self:
+    def from_primes(primes: Iterable[int]) -> FactoredInt:
         '''
         Return a FactoredInt by counting an iterable of prime integers.
         The primes are not validated for primality.
