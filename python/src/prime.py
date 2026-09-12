@@ -67,19 +67,21 @@ def is_composite(n: int):
 def sieve(n: int) -> list[int]:
     '''
     Perform the Sieve of Eratosthenes and return the list of sorted
-    primes up to n.'''
+    primes up to n (exclusive).
+    '''
+    if n < 2:
+        return []
     primes = [2]
     # Using odd indices reduces memory and runtime by half.
-    # Each index corresponds to n = 2 * i + 1;
-    data = [True] * (n // 2)  
-    end = math.isqrt(n) + 1
-    for i in range(1, end):
-        primes.append(2 * i + 1)
-        start, stop, skip = i * 3, len(data), 2 * i
-        data[start:stop:skip] = itertools.repeat(False, len(range(start, stop, skip)))
-    for i in range(end, len(data)):
-        if data[i]:
-            primes.append(2 * i + 1)
+    index = lambda m: (m - 3) // 2
+    nums = [True] * (index(n) + 1)
+    is_prime = lambda m: nums[index(m)]
+    
+    for p in filter(is_prime, range(3, end := math.isqrt(n) + 1, 2)):
+        primes.append(p)
+        start, stop, skip = index(p ** 2), len(nums), p
+        nums[start:stop:skip] = itertools.repeat(False, len(range(start, stop, skip)))
+    primes.extend(filter(is_prime, range(end | 1, n, 2)))
     return primes
 
 def generate_primes(n: int):
