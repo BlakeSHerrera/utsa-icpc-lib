@@ -263,12 +263,17 @@ class FactoredInt(Number):
         Find the count of divisors that the factored integer has, returning the
         result as a new factored integer.
         '''
-        return math.prod(FactoredInt.factor(i + 1) for i in self.prime_factors.values())
+        series = (FactoredInt.factor(i + 1) for i in self.prime_factors.values())
+        return math.prod(series, start = FactoredInt.from_primes(()))
 
     def divisor_sum(self) -> Self:
         '''Find the sum of the factored integer's divisors as a factored integer.'''
-        numerator: FactoredInt = math.prod(FactoredInt.factor(p ** (e + 1) - 1) for p, e in self.prime_factors.items())
-        denominator: FactoredInt = math.prod(FactoredInt.factor(p - 1) for p in self.prime_factors)
+        numerator: FactoredInt = math.prod(
+            map(FactoredInt.factor, (p ** (e + 1) - 1 for p, e in self.prime_factors.items()),
+            start = FactoredInt.from_primes(())))
+        denominator: FactoredInt = math.prod(
+            map(FactoredInt.factor, (p - 1 for p in self.prime_factors)),
+            start = FactoredInt.from_primes(()))
         return (numerator / denominator).numerator
 
     def euler_totient(self) -> Self:
@@ -277,7 +282,9 @@ class FactoredInt(Number):
         prime (or coprime) up to n. It it written using the Greek letter phi.
         '''
         return (self / self.radical()).numerator \
-            * math.prod(FactoredInt.factor(p - 1) for p in self.prime_factors)
+            * math.prod(
+                (FactoredInt.factor(p - 1) for p in self.prime_factors),
+                start = FactoredInt.from_primes(()))
 
     def mobius(self) -> int:
         '''
