@@ -167,7 +167,7 @@ def test_log10(n: int):
         (360, 361), (361, 360), (360, 359), (359, 360),
         (MEDIUM_PRIME, MEDIUM_PRIME), 
         (MEDIUM_PRIME, MEDIUM_PRIME -1),
-        (MEDIUM_PRIME, MEDIUM_PRIME + 1)
+        (MEDIUM_PRIME, MEDIUM_PRIME + 1),
         (MEDIUM_PRIME - 1, MEDIUM_PRIME),
         (MEDIUM_PRIME + 1, MEDIUM_PRIME),
         (math.prod(KNOWN_PRIMES) ** 2, math.prod(KNOWN_PRIMES[:-1]) ** 2),

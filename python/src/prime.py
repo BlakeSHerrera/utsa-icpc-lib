@@ -11,6 +11,7 @@ import bisect
 import collections
 import dataclasses
 import enum
+import functools
 import heapq
 import itertools
 import math
@@ -97,6 +98,7 @@ class Ordering(enum.Enum):
     DESCENDING = enum.auto()
 
 
+@functools.total_ordering
 class FactoredInt(Number):
     '''
     This class represents a positive integer that has been factored via a
