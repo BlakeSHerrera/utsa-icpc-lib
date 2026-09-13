@@ -63,7 +63,7 @@ def test_is_composite_too_big():
 @pytest.mark.parametrize('n', range(10))
 def test_generate_primes(n):
     generate_primes(n)
-    assert PRIMES == list(filter(n.__lt__, KNOWN_PRIMES))
+    assert PRIMES == list(filter(n.__gt__, KNOWN_PRIMES))
 
 
 THREE_SIXTY = FactoredInt.from_primes([2, 2, 2, 3, 3, 5])
