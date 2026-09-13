@@ -143,14 +143,6 @@ def test_divisions(a: int, b: int):
     assert fa.is_coprime(fb) == (gcf == 1)
 
 @pytest.mark.parametrize(
-    'primes', 
-    [(2, 2, 2, 3, 3, 5), ()])
-def test_eq(primes: Iterable[int]):
-    a = FactoredInt.from_primes(primes)
-    b = FactoredInt(collections.Counter(primes))
-    assert a == b
-
-@pytest.mark.parametrize(
     ['n', 'base'],
     [(360, 5), (360, 2), (360, 10)])
 def test_log(n: int, base: int):
@@ -171,13 +163,25 @@ def test_log10(n: int):
 @pytest.mark.parametrize(
     ['a', 'b'],
     [
+        (1, 1), (1, 2), (2, 1), (2, 2),
         (360, 361), (361, 360), (360, 359), (359, 360),
+        (MEDIUM_PRIME, MEDIUM_PRIME), 
+        (MEDIUM_PRIME, MEDIUM_PRIME -1),
+        (MEDIUM_PRIME, MEDIUM_PRIME + 1)
+        (MEDIUM_PRIME - 1, MEDIUM_PRIME),
+        (MEDIUM_PRIME + 1, MEDIUM_PRIME),
         (math.prod(KNOWN_PRIMES) ** 2, math.prod(KNOWN_PRIMES[:-1]) ** 2),
         (math.prod(KNOWN_PRIMES[:-1]) ** 2, math.prod(KNOWN_PRIMES) ** 2),
     ])
-def test_lt(a: int, b: int):
+def test_comparisons(a: int, b: int):
     fa, fb = map(FactoredInt.factor, (a, b))
+    assert (fa == fb) == (a == b)
+    assert (fa != fb) == (a != b)
     assert (fa < fb) == (a < b)
+    assert (fa <= fb) == (a <= b)
+    assert (fa > fb) == (a > b)
+    assert (fa >= fb) == (a > b)
+    
 
 @pytest.mark.parametrize('nums', [(2, 3, 3, 5, 5, 5)])
 def test_radical(nums: Iterable[int]):
