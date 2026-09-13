@@ -47,7 +47,7 @@ def is_prime(n: int):
     Note that values less than 2 are neither prime nor composite.
     '''
     if n <= PRIMES[-1]:
-        return PRIMES[bisect.bisect(PRIMES, n)] == n
+        return PRIMES[bisect.bisect_left(PRIMES, n)] == n
     sqrt = math.isqrt(n)
     for p in PRIMES:
         if p > sqrt:
