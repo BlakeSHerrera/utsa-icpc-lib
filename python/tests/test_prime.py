@@ -177,7 +177,7 @@ def test_log10(n: int):
     ])
 def test_lt(a: int, b: int):
     fa, fb = map(FactoredInt.factor, (a, b))
-    assert fa < fb == a < b
+    assert (fa < fb) == (a < b)
 
 @pytest.mark.parametrize('nums', [(2, 3, 3, 5, 5, 5)])
 def test_radical(nums: Iterable[int]):
