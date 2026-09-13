@@ -214,7 +214,7 @@ def test_all_divisors(n: int):
 def test_divisor_pairs(n: int):
     fn = FactoredInt.factor(n)
     pairs = {(d, n // d) for d in _divisors(n) if d <= n // d}
-    assert set(fn.divisor_pairs()) == pairs
+    assert {(a.to_int(), b.to_int()) for a, b in fn.divisor_pairs()} == pairs
 
 
 @pytest.mark.parametrize(
