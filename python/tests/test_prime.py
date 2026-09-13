@@ -186,7 +186,7 @@ def test_radical(nums: Iterable[int]):
 
 
 def _divisors(n: int):
-    return [n for i in range(1, n + 1) if n % i == 0]
+    return [i for i in range(1, n + 1) if n % i == 0]
 
 @pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_divisor_count(n: int):
