@@ -256,7 +256,7 @@ class FactoredInt(Number):
         Find the radical (or rad) of a factored integer and return a new factored integer.
         The radical is the product of all distinct prime integers that divide n.
         '''
-        return FactoredInt(collections.Counter(zip(self.prime_factors.keys(), itertools.repeat(1))))
+        return FactoredInt(collections.Counter(self.prime_factors.keys()))
     
     def divisor_count(self) -> Self:
         '''
