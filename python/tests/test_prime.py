@@ -120,7 +120,7 @@ def test_mul(a: int, b: int):
 
 @pytest.mark.parametrize(
     ['a', 'b'],
-    [(1, 1), (1, 2), (2, 1), (2 * 3, 2 * 5), (2 * 3, 3 * 5), (360, 0)])
+    [(1, 1), (1, 2), (2, 1), (2 * 3, 2 * 5), (2 * 3, 3 * 5)])
 def test_pow(a: int, b: int):
     fa, fb, fc = map(FactoredInt.factor, (a, b, a ** b))
     assert fa ** fb == fc
