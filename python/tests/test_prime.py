@@ -188,17 +188,17 @@ def test_radical(nums: Iterable[int]):
 def _divisors(n: int):
     return [n for i in range(1, n + 1) if n % i == 0]
 
-@pytest.mark.parametrize('n', [1, 360, 359, 361, 4])
+@pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_divisor_count(n: int):
     fn = FactoredInt.factor(n)
     assert fn.divisor_count().to_int() == len(_divisors(n))
 
-@pytest.mark.parametrize('n', [1, 360, 359, 361, 4])
+@pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_divisor_sum(n: int):
     fn = FactoredInt.factor(n)
-    assert fn.divisor_sum() == sum(_divisors(n))
+    assert fn.divisor_sum().to_int() == sum(_divisors(n))
 
-@pytest.mark.parametrize('n', [1, 360, 359, 361, 4])
+@pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_all_divisors(n: int):
     fn = FactoredInt.factor(n)
     divisors = _divisors(n)
@@ -206,7 +206,7 @@ def test_all_divisors(n: int):
     assert list(fn.all_divisors(Ordering.DESCENDING)) == divisors[::-1]
     assert set(fn.all_divisors(Ordering.UNORDERED)) == set(divisors)
 
-@pytest.mark.parametrize('n', [1, 360, 359, 361, 4])
+@pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_divisor_pairs(n: int):
     fn = FactoredInt.factor(n)
     pairs = {(d, n // d) for d in _divisors(n) if d <= n // d}
