@@ -127,7 +127,7 @@ def test_pow(a: int, b: int):
 
 @pytest.mark.parametrize(
     ['a', 'b'],
-    [(6, 15), (15, 6), (4, 9), (9, 4), (2, 4), (4, 2), (360, 1),  (1, 360)])
+    [(6, 15), (15, 6), (4, 9), (9, 4), (2, 4), (4, 2), (360, 1), (1, 360), (1, 1)])
 def test_divisions(a: int, b: int):
     gcf = math.gcd(a, b)
     fa, fb, fnum, fdenom, fgcf, flcm = map(
