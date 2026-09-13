@@ -180,7 +180,7 @@ def test_comparisons(a: int, b: int):
     assert (fa < fb) == (a < b)
     assert (fa <= fb) == (a <= b)
     assert (fa > fb) == (a > b)
-    assert (fa >= fb) == (a > b)
+    assert (fa >= fb) == (a >= b)
     
 
 @pytest.mark.parametrize('nums', [(2, 3, 3, 5, 5, 5)])
