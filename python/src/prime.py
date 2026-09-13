@@ -69,7 +69,7 @@ def sieve(n: int) -> list[int]:
     Perform the Sieve of Eratosthenes and return the list of sorted
     primes up to n (exclusive).
     '''
-    if n < 2:
+    if n <= 2:
         return []
     primes = [2]
     # Using odd indices reduces memory and runtime by half.
@@ -320,6 +320,7 @@ class FactoredInt(Number):
     def divisor_pairs(self) -> Iterable[tuple[Self, Self]]:
         '''
         Iterate through all pairs of divisors that multiply to n.
+        The first number will be lesser than or equal to the second.
         This function is not ordered.
         
         Note that the size of this iterable multiplied by 2 is not equivalent to
