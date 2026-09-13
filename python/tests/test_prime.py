@@ -216,7 +216,7 @@ def test_divisor_pairs(n: int):
 @pytest.mark.parametrize(
     ['n', 'totient'],
     [
-        (1, 1), (2, 1), (5, 2), (11, 10),  # base / primes
+        (1, 1), (2, 1), (5, 4), (11, 10),  # base / primes
         (8, 4), (27, 18),  # Prime powers
         (10, 4), (12, 4), (36, 12),  # Composites
     ])
