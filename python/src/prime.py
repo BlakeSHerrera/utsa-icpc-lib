@@ -288,9 +288,9 @@ class FactoredInt(Number):
         - 0 if n is a squared prime factor.
             - (Meaning it can be divided evenly by a square number like 4, 9, or 25.)
         '''
-        return 0 if max(self.prime_factors.values()) > 1 \
+        return 0 if self and max(self.prime_factors.values()) > 1 \
             else 1 if len(self.prime_factors) % 2 == 0 \
-            else -1 
+            else -1
 
     def all_divisors(self, ordering: Ordering) -> Iterable[Self]:
         '''Iterate through all divisors (as factored integers) according to an ordering.'''
