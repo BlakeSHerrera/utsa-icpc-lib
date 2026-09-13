@@ -237,4 +237,9 @@ def test_euler_totient(n: int, totient: int):
 def test_mobius(n: int, mobius: int):
     fn = FactoredInt.factor(n)
     assert fn.mobius() == mobius
-    
+
+@pytest.mark.parametrize('nums', [
+    (), (1,), (2, 3, 3, 5, 5, 5),
+])
+def test_prod(nums: Iterable[int]):
+    assert FactoredInt.prod(nums).to_int() == math.prod(nums)

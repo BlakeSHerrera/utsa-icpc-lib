@@ -263,17 +263,12 @@ class FactoredInt(Number):
         Find the count of divisors that the factored integer has, returning the
         result as a new factored integer.
         '''
-        series = (FactoredInt.factor(i + 1) for i in self.prime_factors.values())
-        return math.prod(series, start = FactoredInt.from_primes(()))
+        return FactoredInt.prod(i + i for i in self.prime_factors.values())
 
     def divisor_sum(self) -> Self:
         '''Find the sum of the factored integer's divisors as a factored integer.'''
-        numerator: FactoredInt = math.prod(
-            map(FactoredInt.factor, (p ** (e + 1) - 1 for p, e in self.prime_factors.items()),
-            start = FactoredInt.from_primes(())))
-        denominator: FactoredInt = math.prod(
-            map(FactoredInt.factor, (p - 1 for p in self.prime_factors)),
-            start = FactoredInt.from_primes(()))
+        numerator = FactoredInt.prod(p ** (e + 1) - 1 for p, e in self.prime_factors.items())
+        denominator = FactoredInt.prod(p - 1 for p in self.prime_factors.keys())
         return (numerator / denominator).numerator
 
     def euler_totient(self) -> Self:
@@ -282,9 +277,7 @@ class FactoredInt(Number):
         prime (or coprime) up to n. It it written using the Greek letter phi.
         '''
         return (self / self.radical()).numerator \
-            * math.prod(
-                (FactoredInt.factor(p - 1) for p in self.prime_factors),
-                start = FactoredInt.from_primes(()))
+            * FactoredInt.prod(p - 1 for p in self.prime_factors.keys())
 
     def mobius(self) -> int:
         '''
@@ -335,6 +328,12 @@ class FactoredInt(Number):
         '''
         # Note edge case for squares
         return ((d, (self / d).numerator) for d in self.all_divisors(Ordering.UNORDERED) if d * d <= self)
+
+    @staticmethod
+    def prod(ints: Iterable[int]) -> FactoredInt:
+        return math.prod(
+            map(FactoredInt.factor, ints), 
+            start = FactoredInt.from_primes(()))
 
 
 @dataclasses.dataclass
