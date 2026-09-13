@@ -40,28 +40,21 @@ def test_sieve(n):
     assert sieve(n) == list(filter(n.__gt__, KNOWN_PRIMES))
 
 @pytest.mark.parametrize(
-    ['n', 'expected'],
-    ((i, i in KNOWN_PRIMES) for i in range(10)))
-def test_is_prime(n, expected):
+    ['n', 'prime'],
+    tuple((i, i in KNOWN_PRIMES) for i in range(10)))
+def test_is_prime_or_composite(n: int, prime: bool):
     generate_primes(6)
-    assert is_prime(n) == expected
+    assert is_prime(n) == prime
+    assert is_composite(n) == (n >= 2 and not prime)
 
 def test_is_prime_too_big():
     _test_not_enough_primes(is_prime)
-
-@pytest.mark.parametrize(
-    ['n', 'expected'],
-    ((i, i > 1 and i not in KNOWN_PRIMES) for i in range(10))
-)
-def test_is_composite(n, expected):
-    generate_primes(6)
-    assert is_composite(n) == expected
 
 def test_is_composite_too_big():
     _test_not_enough_primes(is_composite)
 
 @pytest.mark.parametrize('n', range(10))
-def test_generate_primes(n):
+def test_generate_primes(n: int):
     generate_primes(n)
     assert PRIMES == list(filter(n.__gt__, KNOWN_PRIMES))
 
