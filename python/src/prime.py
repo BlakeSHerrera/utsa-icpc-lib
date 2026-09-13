@@ -297,7 +297,7 @@ class FactoredInt(Number):
         primes = list(self.prime_factors)
         match ordering:
             case Ordering.UNORDERED:
-                bag = baglib.Stack()
+                bag = baglib.ListStack()
                 base = FactoredInt.from_primes(())
             case Ordering.ASCENDING:
                 bag = baglib.ListHeap(comparator = operator.lt)
