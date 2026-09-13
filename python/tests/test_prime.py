@@ -89,7 +89,7 @@ def test_factored_int_getitem():
 
 def test_factored_int_contains():
     for i, j in zip(KNOWN_PRIMES, (True,) * 3 + (False,)):
-        assert i in THREE_SIXTY == j
+        assert (i in THREE_SIXTY) == j
 
 @pytest.mark.parametrize('counts', [
     {}, {2: 1}, {3: 1}, {2: 2}, {2: 1, 3: 1}, {2: 3},
