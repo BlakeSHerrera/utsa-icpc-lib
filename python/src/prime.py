@@ -300,10 +300,10 @@ class FactoredInt(Number):
                 bag = baglib.Stack()
                 base = FactoredInt.from_primes(())
             case Ordering.ASCENDING:
-                bag = baglib.Heap(comparator = operator.lt)
+                bag = baglib.ListHeap(comparator = operator.lt)
                 base = FactoredInt.from_primes(())
             case Ordering.DESCENDING:
-                bag = baglib.Heap(comparator = operator.gt)
+                bag = baglib.ListHeap(comparator = operator.gt)
                 base = self
         bag.push((base, 0))
 
