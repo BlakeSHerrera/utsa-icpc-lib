@@ -263,7 +263,7 @@ class FactoredInt(Number):
         Find the count of divisors that the factored integer has, returning the
         result as a new factored integer.
         '''
-        return FactoredInt.prod(i + 1 for i in self.prime_factors.values())
+        return FactoredInt.prod(e + 1 for e in self.prime_factors.values())
 
     def divisor_sum(self) -> Self:
         '''Find the sum of the factored integer's divisors as a factored integer.'''
