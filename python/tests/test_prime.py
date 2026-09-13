@@ -202,9 +202,9 @@ def test_divisor_sum(n: int):
 def test_all_divisors(n: int):
     fn = FactoredInt.factor(n)
     divisors = _divisors(n)
-    assert list(fn.all_divisors(Ordering.ASCENDING)) == divisors
-    assert list(fn.all_divisors(Ordering.DESCENDING)) == divisors[::-1]
-    assert set(fn.all_divisors(Ordering.UNORDERED)) == set(divisors)
+    assert list(map(FactoredInt.to_int, fn.all_divisors(Ordering.ASCENDING))) == divisors
+    assert list(map(FactoredInt.to_int, fn.all_divisors(Ordering.DESCENDING))) == divisors[::-1]
+    assert set(map(FactoredInt.to_int, fn.all_divisors(Ordering.UNORDERED))) == set(divisors)
 
 @pytest.mark.parametrize('n', [1, 2, 3, 4, 6, 12, 360, 359, 361])
 def test_divisor_pairs(n: int):
