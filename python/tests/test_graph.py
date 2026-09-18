@@ -216,5 +216,30 @@ def test_neighbors(graph: MutableGraph, elements: GraphDefinition):
         except NotImplementedError: pass
 
 
-def test_generic(graph: MutableGraph):
-    assert isinstance(graph, MutableGraph)
+def test_composite_graph(elements: GraphDefinition):
+    comp = CompositeGraph(
+        adj := AdjacencySet(), 
+        eset := ElementSet(), 
+        nodes = (nodes := set(elements.nodes)), 
+        edges = (edges := set(elements.edges)))
+    assert set(adj.nodes()) == nodes
+    assert set(adj.edges()) == edges
+    assert adj == eset
+    
+    comp.add_node(n1 := Node(1))
+    comp.add_node(n2 := Node(2))
+    assert set(adj.nodes()) == nodes | {n1, n2}
+    assert adj == eset
+
+    comp.add_edge(e := Edge(n1, n2))
+    assert set(adj.edges()) == edges | {e}
+    assert adj == eset
+
+    comp.remove_edge(e)
+    assert set(adj.edges()) == edges
+    assert adj == eset
+
+    comp.remove_node(n1)
+    comp.remove_node(n2)
+    assert set(adj.nodes()) == nodes
+    assert adj == eset
