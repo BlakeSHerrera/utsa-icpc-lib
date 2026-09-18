@@ -141,7 +141,7 @@ class GridView(graph.GraphView):
 
     def __init__(
         self, 
-        backend: graph.MutableGraph,
+        backend: graph.Graph,
         grid: Sequence[Sequence[GridNode]], 
         edges: Iterable[graph.Edge]
     ):
@@ -151,7 +151,7 @@ class GridView(graph.GraphView):
 
     @staticmethod
     def from_adjacency(
-        backend: graph.MutableGraph,
+        backend: graph.Graph,
         grid: Sequence[Sequence],
         adjacency: Iterable[Point],
     ) -> Self:

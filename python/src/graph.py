@@ -192,7 +192,7 @@ class GraphView:
         return set(self.nodes()) == set(other.nodes()) \
             and set(self.edges()) == set(other.edges())
     
-class MutableGraph(GraphView, abc.ABC):
+class Graph(GraphView, abc.ABC):
     '''A mutable graph is a graph that can be mutated and changed.'''
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
@@ -253,14 +253,14 @@ class MutableGraph(GraphView, abc.ABC):
         raise NotImplementedError
 
 
-class CompositeGraph(MutableGraph):
+class CompositeGraph(Graph):
     '''
     A composite graph distributes graph mutations to multiple different concrete
     graph objects to keep them all in sync. The programmer still selects the
     most appropriate backend representation to answer different queries.
     '''
 
-    def __init__(self, *backends: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+    def __init__(self, *backends: Graph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         self._backends = backends
         super().__init__(nodes, edges)
 
@@ -285,7 +285,7 @@ class CompositeGraph(MutableGraph):
             g.remove_edge(edge)
 
 
-class LaxGraph(MutableGraph, abc.ABC):
+class LaxGraph(Graph, abc.ABC):
     '''
     A LaxGraph (relaxed graph) is one which is a partial implementation of a graph.
     The underlying mutations do not need to be concretely implemented.
@@ -310,7 +310,7 @@ class LaxGraph(MutableGraph, abc.ABC):
         pass
 
 
-class AdjacencySet(MutableGraph):
+class AdjacencySet(Graph):
     '''
     An adjacency set keeps a mapping between a node and the edges it is connected to.
     This class keeps such a mapping for each of the three traversal directions.
@@ -397,7 +397,7 @@ class AdjacencySet(MutableGraph):
         return bool(self.v())
 
 
-class ElementSet(MutableGraph):
+class ElementSet(Graph):
     '''
     An element set simply keeps track of the nodes and edges that have been added
     via sets for each, and a set for both.
@@ -467,7 +467,7 @@ class ElementSet(MutableGraph):
         return bool(self._elements)
 
 
-class EdgeSearch(MutableGraph):
+class EdgeSearch(Graph):
     '''
     This is a specialized type of graph designed to answer which edges
     exist between two nodes. It is not suited for most other tasks.
