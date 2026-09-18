@@ -64,19 +64,11 @@ class Edge:
         '''
         return (self.from_, self.to)
 
-    @property
-    def nodes_r(self) -> tuple[Node, Node]:
-        '''
-        Get the two nodes that the edge connects, in reverse order.
-        The `from_` node is last and the `to` node is first.
-        '''
-        return (self.to, self.from_)
-
     def __contains__(self, other: Node) -> bool:
         '''Return true if the node is one of the nodes that the edge connects.'''
         return other in self.nodes
 
-    def neighbors(self, direction: Direction) -> Iterable[Node]:
+    def neighbors(self, direction: Direction) -> tuple[Node, ...]:
         '''Get the nodes that this edge connects, depending on the direction.'''
         match direction:
             case Direction.OUT:
@@ -86,6 +78,40 @@ class Edge:
             case Direction.BOTH:
                 return self.nodes
 
+    def orient(self, dir: Direction) -> Iterable[tuple[Node, Node]]:
+        '''
+        Get the nodes for an edge along this direction in traversal order. That is,
+        OUT: (from_, to)
+        IN: (to, from_)
+        BOTH: (from_, to) and (to, from_)
+        '''
+        match dir:
+            case Direction.OUT:
+                return (self.nodes,)
+            case Direction.IN:
+                return (self.nodes[::-1],)
+            case Direction.BOTH:
+                return (self.nodes, self.nodes[::-1])
+
+
+class SimpleEdge(Edge):
+    '''
+    A SimpleEdge is a component of a simple graph, where multiple edges
+    between the same nodes in the same direction are not allowed.
+    (Note that the mathematical definition also includes that there are 
+    no self-edges, but this is allowed for SimpleEdge.)
+    
+    Two SimpleEdges are equal if their from_ and to nodes are equal
+    (including the direction of the edge). They will also hash to the
+    same value.
+    '''
+
+    def __hash__(self):
+        return hash(self.nodes)
+
+    def __eq__(self, other: SimpleEdge):
+        return self.nodes == other.nodes
+
 
 class Direction(utils.ZeroBasedEnum):
     '''An enum for defining the edge traversal directions.'''
@@ -93,6 +119,9 @@ class Direction(utils.ZeroBasedEnum):
     OUT = enum.auto()
     IN = enum.auto()
     BOTH = enum.auto()
+
+    def __invert__(self):
+        return self.reverse()
 
     def reverse(self) -> Self:
         '''Reverse the direction. OUT <-> IN. BOTH remains unchanged.'''
@@ -103,21 +132,6 @@ class Direction(utils.ZeroBasedEnum):
                 return Direction.OUT
             case BOTH:
                 return BOTH
-
-    def orient(self, edge: Edge) -> Iterable[tuple[Node, Node]]:
-        '''
-        Get the nodes for an edge along this direction in traversal order. That is,
-        OUT: (from_, to)
-        IN: (to, from_)
-        BOTH: (from_, to) and (to, from_)
-        '''
-        match self:
-            case Direction.OUT:
-                return (edge.nodes,)
-            case Direction.IN:
-                return (edge.nodes_r,)
-            case Direction.BOTH:
-                return (edge.nodes, edge.nodes_r)
 
 
 class GraphView:
@@ -173,7 +187,7 @@ class GraphView:
         return set(self.nodes()) == set(other.nodes()) \
             and set(self.edges()) == set(other.edges())
     
-class MutableGraph(GraphView, abc.ABC):
+class Graph(GraphView, abc.ABC):
     '''A mutable graph is a graph that can be mutated and changed.'''
 
     def __init__(self, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
@@ -234,35 +248,39 @@ class MutableGraph(GraphView, abc.ABC):
         raise NotImplementedError
 
 
-class CompositeGraph(MutableGraph):
+class CompositeGraph(Graph):
     '''
     A composite graph distributes graph mutations to multiple different concrete
     graph objects to keep them all in sync. The programmer still selects the
     most appropriate backend representation to answer different queries.
     '''
 
-    def __init__(self, *backends: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+    def __init__(self, *backends: Graph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
         self._backends = backends
         super().__init__(nodes, edges)
 
     def add_node(self, node: Node):
+        '''Add a node to every graph.'''
         for g in self._backends:
             g.add_node(node)
 
     def add_edge(self, edge: Edge):
+        '''Add an edge to every graph.'''
         for g in self._backends:
             g.add_edge(edge)
 
     def remove_node(self, node: Node):
+        '''Remove a node from every graph.'''
         for g in self._backends:
             g.remove_node(node)
 
     def remove_edge(self, edge: Edge):
+        '''Remove an edge from every backend'''
         for g in self._backends:
             g.remove_edge(edge)
 
 
-class LaxGraph(MutableGraph, abc.ABC):
+class LaxGraph(Graph, abc.ABC):
     '''
     A LaxGraph (relaxed graph) is one which is a partial implementation of a graph.
     The underlying mutations do not need to be concretely implemented.
@@ -287,7 +305,7 @@ class LaxGraph(MutableGraph, abc.ABC):
         pass
 
 
-class AdjacencySet(MutableGraph):
+class AdjacencySet(Graph):
     '''
     An adjacency set keeps a mapping between a node and the edges it is connected to.
     This class keeps such a mapping for each of the three traversal directions.
@@ -374,7 +392,7 @@ class AdjacencySet(MutableGraph):
         return bool(self.v())
 
 
-class ElementSet(MutableGraph):
+class ElementSet(Graph):
     '''
     An element set simply keeps track of the nodes and edges that have been added
     via sets for each, and a set for both.
@@ -444,7 +462,7 @@ class ElementSet(MutableGraph):
         return bool(self._elements)
 
 
-class EdgeSearch(MutableGraph):
+class EdgeSearch(Graph):
     '''
     This is a specialized type of graph designed to answer which edges
     exist between two nodes. It is not suited for most other tasks.
@@ -463,7 +481,7 @@ class EdgeSearch(MutableGraph):
     def add_edge(self, edge: Edge):
         '''Add an edge into the graph.'''
         for dir in Direction:
-            for node_1, node_2 in dir.orient(edge):
+            for node_1, node_2 in edge.orient(dir):
                 self._edges[dir][node_1][node_2].add(edge)
 
     def remove_node(self, node: Node):
@@ -480,7 +498,7 @@ class EdgeSearch(MutableGraph):
     def remove_edge(self, edge: Edge):
         '''Remove an edge from the graph.'''
         for dir in Direction:
-            for node_1, node_2 in dir.orient(edge):
+            for node_1, node_2 in edge.orient(dir):
                 self._edges[dir][node_1][node_2].remove(edge)
 
     def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]:

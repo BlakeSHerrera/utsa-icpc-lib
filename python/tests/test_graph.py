@@ -18,7 +18,6 @@ def test_attributes():
     assert edge.from_ is node_1
     assert edge.to is node_2
     assert edge.nodes == (node_1, node_2)
-    assert edge.nodes_r == (node_2, node_1)
 
 
 def test_edge_in():
@@ -38,22 +37,38 @@ def test_edge_neighbors():
     ]:
         assert set(edge.neighbors(dir)) == result
 
-def test_direction():
-    assert Direction.OUT.reverse() is Direction.IN
-    assert Direction.IN.reverse() is Direction.OUT
-    assert Direction.BOTH.reverse() is Direction.BOTH
+@pytest.mark.parametrize(
+    argnames = ['dir', 'expected'],
+    argvalues = [
+        (Direction.OUT, Direction.IN),
+        (Direction.IN, Direction.OUT),
+        (Direction.BOTH, Direction.BOTH)
+    ])
+def test_direction_reverse(dir: Direction, expected: Direction):
+    assert dir.reverse() is expected
+    assert ~dir is expected
 
 
-def test_direction_orient():
+def test_orient():
     node_1 = Node(1)
     node_2 = Node(2)
     edge = Edge(node_1, node_2)
     for dir, result in [
         (Direction.OUT, {edge.nodes}),
-        (Direction.IN, {edge.nodes_r}),
-        (Direction.BOTH, {edge.nodes, edge.nodes_r})
+        (Direction.IN, {edge.nodes[::-1]}),
+        (Direction.BOTH, {edge.nodes, edge.nodes[::-1]})
     ]:
-        assert set(dir.orient(edge)) == result
+        assert set(edge.orient(dir)) == result
+
+
+def test_simple_edge():
+    e1 = SimpleEdge(n1 := Node(1), n2 := Node(2))
+    e2 = SimpleEdge(n1, n2)
+    e3 = SimpleEdge(n2, n1)
+    assert e1 == e2
+    assert e1 != e3
+    assert hash(e1) == hash(e2)
+    assert hash(e1) != hash(e3)
 
 
 @dataclasses.dataclass
@@ -61,16 +76,16 @@ class GraphDefinition:
     nodes: list[Node]
     edges: list[Edge]
 
-    def add_to(self, graph: MutableGraph):
+    def add_to(self, graph: Graph):
         graph.add_all(self.nodes, self.edges)
 
-    def remove_from(self, graph: MutableGraph):
+    def remove_from(self, graph: Graph):
         for edge in self.edges:
             graph.remove_edge(edge)
         for node in self.nodes:
             graph.remove_node(node)
 
-    def add_and_remove(self, graph: MutableGraph):
+    def add_and_remove(self, graph: Graph):
         self.add_to(graph)
         self.remove_from(graph)
 
@@ -148,35 +163,35 @@ def edge_search() -> EdgeSearch:
     ...
 
 @testutils.fixtures(adjacency_set_empty, element_set_empty, edge_search_empty)
-def empty_graph() -> MutableGraph:
+def empty_graph() -> Graph:
     ...
     
 @testutils.fixtures(*adjacency_set.fixtures, *element_set.fixtures, *edge_search.fixtures)
-def graph() -> MutableGraph:
+def graph() -> Graph:
     ...
 
-def test_graph_nodes(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_nodes(graph: Graph, elements: GraphDefinition):
     try: assert set(graph.nodes()) == set(elements.nodes)
     except NotImplementedError: pass
 
-def test_graph_edges(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_edges(graph: Graph, elements: GraphDefinition):
     try: assert set(graph.edges()) == set(elements.edges)
     except NotImplementedError: pass
 
-def test_graph_v(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_v(graph: Graph, elements: GraphDefinition):
     try: assert graph.v() == len(elements.nodes)
     except NotImplementedError: pass
 
-def test_graph_e(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_e(graph: Graph, elements: GraphDefinition):
     try: assert graph.e() == len(elements.edges)
     except NotImplementedError: pass
 
-def test_graph_bool(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_bool(graph: Graph, elements: GraphDefinition):
     assert bool(graph) == bool(elements.nodes + elements.edges)
     elements.remove_from(graph)
     assert not bool(graph)
 
-def test_graph_degree(graph: MutableGraph, elements: GraphDefinition):
+def test_graph_degree(graph: Graph, elements: GraphDefinition):
     for node in elements.nodes:
         graph.add_edge(Edge(node, node))  # Self-edges are an edge case due to potential confusion
         graph.add_edge(Edge(node, node))  # Also test for multi-edges
@@ -190,7 +205,7 @@ def test_graph_degree(graph: MutableGraph, elements: GraphDefinition):
             try: assert graph.degree(dir, node) == expected, f'Dir {dir} Elements are {elements.edges}'
             except NotImplementedError: pass
 
-def test_edges_between(graph: MutableGraph, elements: GraphDefinition):
+def test_edges_between(graph: Graph, elements: GraphDefinition):
     index: dict[tuple[Node, Node], set[Edge]] = collections.defaultdict(set)
     for edge in elements.edges:
         index[edge.nodes].add(edge)
@@ -200,7 +215,7 @@ def test_edges_between(graph: MutableGraph, elements: GraphDefinition):
     except NotImplementedError:
         pass
 
-def test_neighbors(graph: MutableGraph, elements: GraphDefinition):
+def test_neighbors(graph: Graph, elements: GraphDefinition):
     neighbors: dict[Direction, dict[Node | Edge, list[Node | Edge]]] \
         = collections.defaultdict(lambda: collections.defaultdict(list))
     for edge, dir in itertools.product(elements.edges, Direction):

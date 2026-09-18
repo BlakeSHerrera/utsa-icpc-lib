@@ -12,15 +12,13 @@ import collections
 import dataclasses
 import enum
 import functools
-import heapq
 import itertools
 import math
 from numbers import Number, Real
 import operator
-from typing import Iterable, Self, Sequence
+from typing import Iterable, Self
 
 import bag as baglib
-import utils
 
 
 class NotEnoughPrimes(Exception):
