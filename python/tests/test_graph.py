@@ -18,7 +18,6 @@ def test_attributes():
     assert edge.from_ is node_1
     assert edge.to is node_2
     assert edge.nodes == (node_1, node_2)
-    assert edge.nodes_r == (node_2, node_1)
 
 
 def test_edge_in():
@@ -50,8 +49,8 @@ def test_orient():
     edge = Edge(node_1, node_2)
     for dir, result in [
         (Direction.OUT, {edge.nodes}),
-        (Direction.IN, {edge.nodes_r}),
-        (Direction.BOTH, {edge.nodes, edge.nodes_r})
+        (Direction.IN, {edge.nodes[::-1]}),
+        (Direction.BOTH, {edge.nodes, edge.nodes[::-1]})
     ]:
         assert set(edge.orient(dir)) == result
 

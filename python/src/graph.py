@@ -64,14 +64,6 @@ class Edge:
         '''
         return (self.from_, self.to)
 
-    @property
-    def nodes_r(self) -> tuple[Node, Node]:
-        '''
-        Get the two nodes that the edge connects, in reverse order.
-        The `from_` node is last and the `to` node is first.
-        '''
-        return (self.to, self.from_)
-
     def __contains__(self, other: Node) -> bool:
         '''Return true if the node is one of the nodes that the edge connects.'''
         return other in self.nodes
@@ -97,9 +89,9 @@ class Edge:
             case Direction.OUT:
                 return (self.nodes,)
             case Direction.IN:
-                return (self.nodes_r,)
+                return (self.nodes[::-1],)
             case Direction.BOTH:
-                return (self.nodes, self.nodes_r)
+                return (self.nodes, self.nodes[::-1])
 
 
 class SimpleEdge(Edge):
