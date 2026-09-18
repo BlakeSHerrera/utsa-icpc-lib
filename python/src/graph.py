@@ -120,6 +120,9 @@ class Direction(utils.ZeroBasedEnum):
     IN = enum.auto()
     BOTH = enum.auto()
 
+    def __invert__(self):
+        return self.reverse()
+
     def reverse(self) -> Self:
         '''Reverse the direction. OUT <-> IN. BOTH remains unchanged.'''
         match self:

@@ -37,10 +37,16 @@ def test_edge_neighbors():
     ]:
         assert set(edge.neighbors(dir)) == result
 
-def test_direction():
-    assert Direction.OUT.reverse() is Direction.IN
-    assert Direction.IN.reverse() is Direction.OUT
-    assert Direction.BOTH.reverse() is Direction.BOTH
+@pytest.mark.parametrize(
+    argnames = ['dir', 'expected'],
+    argvalues = [
+        (Direction.OUT, Direction.IN),
+        (Direction.IN, Direction.OUT),
+        (Direction.BOTH, Direction.BOTH)
+    ])
+def test_direction_reverse(dir: Direction, expected: Direction):
+    assert dir.reverse() is expected
+    assert ~dir is expected
 
 
 def test_orient():
