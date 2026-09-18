@@ -68,7 +68,7 @@ class Edge:
         '''Return true if the node is one of the nodes that the edge connects.'''
         return other in self.nodes
 
-    def neighbors(self, direction: Direction) -> Iterable[Node]:
+    def neighbors(self, direction: Direction) -> tuple[Node, ...]:
         '''Get the nodes that this edge connects, depending on the direction.'''
         match direction:
             case Direction.OUT:
