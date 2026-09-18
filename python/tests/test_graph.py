@@ -56,6 +56,16 @@ def test_direction_orient():
         assert set(dir.orient(edge)) == result
 
 
+def test_simple_edge():
+    e1 = SimpleEdge(n1 := Node(1), n2 := Node(2))
+    e2 = SimpleEdge(n1, n2)
+    e3 = SimpleEdge(n2, n1)
+    assert e1 == e2
+    assert e1 != e3
+    assert hash(e1) == hash(e2)
+    assert hash(e1) != hash(e3)
+
+
 @dataclasses.dataclass
 class GraphDefinition:
     nodes: list[Node]

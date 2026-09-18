@@ -87,6 +87,25 @@ class Edge:
                 return self.nodes
 
 
+class SimpleEdge(Edge):
+    '''
+    A SimpleEdge is a component of a simple graph, where multiple edges
+    between the same nodes in the same direction are not allowed.
+    (Note that the mathematical definition also includes that there are 
+    no self-edges, but this is allowed for SimpleEdge.)
+    
+    Two SimpleEdges are equal if their from_ and to nodes are equal
+    (including the direction of the edge). They will also hash to the
+    same value.
+    '''
+
+    def __hash__(self):
+        return hash(self.nodes)
+
+    def __eq__(self, other: SimpleEdge):
+        return self.nodes == other.nodes
+
+
 class Direction(utils.ZeroBasedEnum):
     '''An enum for defining the edge traversal directions.'''
     
