@@ -246,18 +246,22 @@ class CompositeGraph(MutableGraph):
         super().__init__(nodes, edges)
 
     def add_node(self, node: Node):
+        '''Add a node to every graph.'''
         for g in self._backends:
             g.add_node(node)
 
     def add_edge(self, edge: Edge):
+        '''Add an edge to every graph.'''
         for g in self._backends:
             g.add_edge(edge)
 
     def remove_node(self, node: Node):
+        '''Remove a node from every graph.'''
         for g in self._backends:
             g.remove_node(node)
 
     def remove_edge(self, edge: Edge):
+        '''Remove an edge from every backend'''
         for g in self._backends:
             g.remove_edge(edge)
 
