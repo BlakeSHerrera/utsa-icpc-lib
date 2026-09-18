@@ -44,7 +44,7 @@ def test_direction():
     assert Direction.BOTH.reverse() is Direction.BOTH
 
 
-def test_direction_orient():
+def test_orient():
     node_1 = Node(1)
     node_2 = Node(2)
     edge = Edge(node_1, node_2)
@@ -53,7 +53,7 @@ def test_direction_orient():
         (Direction.IN, {edge.nodes_r}),
         (Direction.BOTH, {edge.nodes, edge.nodes_r})
     ]:
-        assert set(dir.orient(edge)) == result
+        assert set(edge.orient(dir)) == result
 
 
 def test_simple_edge():

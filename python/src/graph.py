@@ -86,6 +86,21 @@ class Edge:
             case Direction.BOTH:
                 return self.nodes
 
+    def orient(self, dir: Direction) -> Iterable[tuple[Node, Node]]:
+        '''
+        Get the nodes for an edge along this direction in traversal order. That is,
+        OUT: (from_, to)
+        IN: (to, from_)
+        BOTH: (from_, to) and (to, from_)
+        '''
+        match dir:
+            case Direction.OUT:
+                return (self.nodes,)
+            case Direction.IN:
+                return (self.nodes_r,)
+            case Direction.BOTH:
+                return (self.nodes, self.nodes_r)
+
 
 class SimpleEdge(Edge):
     '''
@@ -122,21 +137,6 @@ class Direction(utils.ZeroBasedEnum):
                 return Direction.OUT
             case BOTH:
                 return BOTH
-
-    def orient(self, edge: Edge) -> Iterable[tuple[Node, Node]]:
-        '''
-        Get the nodes for an edge along this direction in traversal order. That is,
-        OUT: (from_, to)
-        IN: (to, from_)
-        BOTH: (from_, to) and (to, from_)
-        '''
-        match self:
-            case Direction.OUT:
-                return (edge.nodes,)
-            case Direction.IN:
-                return (edge.nodes_r,)
-            case Direction.BOTH:
-                return (edge.nodes, edge.nodes_r)
 
 
 class GraphView:
@@ -486,7 +486,7 @@ class EdgeSearch(Graph):
     def add_edge(self, edge: Edge):
         '''Add an edge into the graph.'''
         for dir in Direction:
-            for node_1, node_2 in dir.orient(edge):
+            for node_1, node_2 in edge.orient(dir):
                 self._edges[dir][node_1][node_2].add(edge)
 
     def remove_node(self, node: Node):
@@ -503,7 +503,7 @@ class EdgeSearch(Graph):
     def remove_edge(self, edge: Edge):
         '''Remove an edge from the graph.'''
         for dir in Direction:
-            for node_1, node_2 in dir.orient(edge):
+            for node_1, node_2 in edge.orient(dir):
                 self._edges[dir][node_1][node_2].remove(edge)
 
     def _neighbors(self, direction: Direction, node: Node) -> Iterable[Edge]:
