@@ -234,6 +234,34 @@ class MutableGraph(GraphView, abc.ABC):
         raise NotImplementedError
 
 
+class CompositeGraph(MutableGraph):
+    '''
+    A composite graph distributes graph mutations to multiple different concrete
+    graph objects to keep them all in sync. The programmer still selects the
+    most appropriate backend representation to answer different queries.
+    '''
+
+    def __init__(self, *backends: MutableGraph, nodes: Iterable[Node] = (), edges: Iterable[Edge] = ()):
+        self._backends = backends
+        super().__init__(nodes, edges)
+
+    def add_node(self, node: Node):
+        for g in self._backends:
+            g.add_node(node)
+
+    def add_edge(self, edge: Edge):
+        for g in self._backends:
+            g.add_edge(edge)
+
+    def remove_node(self, node: Node):
+        for g in self._backends:
+            g.remove_node(node)
+
+    def remove_edge(self, edge: Edge):
+        for g in self._backends:
+            g.remove_edge(edge)
+
+
 class LaxGraph(MutableGraph, abc.ABC):
     '''
     A LaxGraph (relaxed graph) is one which is a partial implementation of a graph.
